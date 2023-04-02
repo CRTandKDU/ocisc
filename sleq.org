@@ -1,0 +1,14 @@
+#+TITLE: OCISC
+#+AUTHOR: jmc
+#+DATE: <2023-04-02 dim.>
+
+* One-Instruction CISC Machine
+** The SUBLEQ OCISC Machine  
+Sources:
+  - [[https://esolangs.org/wiki/Subleq]]
+
+** Python implementation
+** C implementation
+** Z80 implementation
+* Applications
+** Forth  
