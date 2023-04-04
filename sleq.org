@@ -7,7 +7,27 @@
 Sources:
   - [[https://esolangs.org/wiki/Subleq]]
 
+** Logical Circuit Design
+      Logical Circuits Simulators: Logisim 2.7.1, Atanua
+
+** Hardware considerations
+| Module  | Chip              | Ex (Mouser)  | Qty |
+|---------+-------------------+--------------+-----|
+| Counter | D-FlipFlop 74LS74 | SN74LS74ANE4 |   3 |
+| Mod 5   | 3-1 NAND          | SN74LS11N    |   1 |
+| Mod 5   | 1-1 NOT           | SN74LS04N    |   1 |
+|         |                   |              |     |
+
+
+Some sources:
+  - David A. Roberts [[https://github.com/davidar/subleq]]
+    
+** Tool Chain
+   ~sqasm~: [[https://github.com/rcook/subleq]] A SUBLEQ assembler.
+   
 ** Python implementation
+   A simple execution monitor, using Tkinter for GUI, in ~sleq.py~. It loads csv files, where each line lists the space-separated A, B and C values.
+   
 ** C implementation
 ** Z80 implementation
 * Applications
