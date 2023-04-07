@@ -7,20 +7,10 @@
 Sources:
   - [[https://esolangs.org/wiki/Subleq]]
 
-** Protyping
-   Prototype Options: breadboard, stripboard (Vero Board)
-
-   Design options: The same memory space is used both for instructions and r/w memory (the M[B] result written back). This would a prori exclude the use of EEPROM for firmware, unless for instance a minimal FORTH could be constructed without a requirement for self-modyfing SUBLEQ instructions?
-
-  - Following the TRS analogy a continuous addressing covering an EEPROM, with addresses 0000H to ENDROM, followed by a RAM, with addresses ENDROM+1 to ffffH, which would be uninitialized (or zeroed) at each boot.
-  - A single RAM, with addresses 0000H to ffffH, the content of which is at boot copied from secondary storage -- a SD card -- and explicitly saved back before switch-off. The SD card would work a bit like a LISP image.
-   
 ** Logical Circuit Design
       Logical Circuits Simulators: Logisim 2.7.1, Atanua
-      PCB, Routing: Kicad
 
 ** Hardware considerations
-*** A full TTL design
    See also: [[https://en.wikipedia.org/wiki/List_of_7400-series_integrated_circuits]]
    
 | Module           | Chip                 | Ex (Mouser)           | Qty LM | Qty MAIN |
@@ -45,14 +35,6 @@ Sources:
 
 Some sources:
   - David A. Roberts [[https://github.com/davidar/subleq]]
-  - Ben Eater [[https://eater.net/8bit/|8-bit Computer]]
-    
-*** Microcontroller-based with SUBLEQ emulator
-    Arduino, ESP-32
-
-*** IO Design
-    - Full keyboard + LCD
-    - Serial line connection for input/output
     
 ** Tool Chain
    ~sqasm~: [[https://github.com/rcook/subleq]] A SUBLEQ assembler.
