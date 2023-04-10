@@ -4,6 +4,16 @@
 /* See also: [[https://github.com/howerj/subleq]] */
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
+
+#define NEG_USED_FOR_IO
+
+void dump_mem( short *m ){
+  short *i;
+  for( i=m; 0 != *i || 0 != *(i+1) || 0 != *(i+2); i += 3 ){
+    printf( "%d\t%d\t%d\n", *i, *(i+1), *(i+2) );
+  }
+}
 
 int main( int argc, char **argv ){
   int opt	= 0;
@@ -26,8 +36,14 @@ int main( int argc, char **argv ){
   short a, b, c;
   /* Read in SUBLEQ source */
   FILE *f = fopen( argv[optind], "r" );
+  if( NULL == f ){
+    fprintf( stderr, "Error %d in fopen.\n", errno );
+    return errno;
+  }
   while( fscanf( f, "%hd", i++ ) > 0 );
+  /* if( 1 == verbose ) dump_mem( m ); */
   /* SUBLEQ interpreter */
+#ifdef NEG_USED_FOR_IO
   for( ; p>=0; ){
     a = m[p++]; b=m[p++]; c=m[p++];
     a < 0 ? m[b] = getchar() :
@@ -35,10 +51,12 @@ int main( int argc, char **argv ){
       ( m[b] -= m[a] ) <= 0 ? p = c :
       0;
   }
-  if( 1 == verbose ){
-    for( i=m; 0 != *i && 0 != *(i+1) && 0 != *(i+2); i += 3 ){
-      printf( "%d\t%d\t%d\n", *i, *(i+1), *(i+2) );
-    }
+#else
+  for( ; p>=0; ){
+    a = m[p++]; b=m[p++]; c=m[p++];
+    ( m[b] -= m[a] ) <= 0 ? p = c : 0;
   }
+#endif
+  if( 1 == verbose ) dump_mem( m );
   return 0;
 }

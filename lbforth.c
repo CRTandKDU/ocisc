@@ -122,6 +122,8 @@ const char *initScript =
     ": DNEGATE 0. 2SWAP D- ;\n"
     ": CELLS CELL * ;\n"
     ": ALLOT HERE @ + HERE ! ;\n"
+    ": +! DUP @ ROT + SWAP ! ;\n"
+    ": ALLOC HERE @ SWAP HERE +! ;\n"
     ": TRUE -1 ;\n"
     ": FALSE 0 ;\n"
     ": 0= 0 = ;\n"
@@ -139,7 +141,6 @@ const char *initScript =
     ": 2/ 2 / ;\n"
     ": 2* 2 * ;\n"
     ": D2/ 2. D/ ;\n"
-    ": +! DUP @ ROT + SWAP ! ;\n"
     ": [COMPILE] WORD FIND >CFA , ; IMMEDIATE\n"
     ": [CHAR] key ' LIT , , ; IMMEDIATE\n"
     ": RECURSE LATEST @ >CFA , ; IMMEDIATE\n"
@@ -187,6 +188,49 @@ const char *initScript =
     ": DMAX 2OVER 2OVER D> IF 2DROP ELSE 2NIP THEN ;\n"
     ;
 
+/* Additional logic for files arguments in the command line */
+/* Monday, April 10, 2023 */
+
+short arg_filenum = 0;
+char  **arg_argv;
+FILE  *arg_fs = (FILE *)0;
+
+/* Additional ancillary functions */
+void tell (const char * );
+
+#define INT_DIGITS 19
+
+char *i_to_a( int i )
+{
+  /* Room for INT_DIGITS digits, - and '\0' */
+  static char buf[INT_DIGITS + 2];
+  char *p = buf + INT_DIGITS + 1;	/* points to terminating '\0' */
+  if (i >= 0) {
+    do {
+      *--p = '0' + (i % 10);
+      i /= 10;
+    } while (i != 0);
+    return p;
+  }
+  else {			/* i < 0 */
+    do {
+      *--p = '0' - (i % 10);
+      i /= 10;
+    } while (i != 0);
+    *--p = '-';
+  }
+  return p;
+}
+
+void dump_stack(){
+  short p = 1;
+  /* printf( "%d\t%d\n", p, *sp ); */
+  while( p != *sp ){
+    tell( i_to_a( stack[ p++ ] ) );
+    tell( " " );
+ }
+}
+
 /******************************************************************************/
 
 /* The primary data output function. This is the place to change if you want
@@ -200,8 +244,21 @@ void putkey(char c)
 * read from a serial line. */
 int llkey()
 {
-    if (*initscript_pos) return *(initscript_pos++);
-    return getchar();
+  int c;
+  if (*initscript_pos) return *(initscript_pos++);
+  
+  if( arg_filenum ){
+    c = getc( arg_fs ); if( !feof( arg_fs ) ) return c;
+    /* End of file reached */
+    fclose( arg_fs );
+    if( --arg_filenum ){
+      arg_fs = fopen( arg_argv[arg_filenum], "r" );
+      /* Hoping the file is not empty! */
+      return( getc( arg_fs ) );
+    }
+  }
+  
+  return getchar();
 }
 
 /* Anything waiting in the keyboard buffer? */
@@ -679,8 +736,10 @@ BUILTIN(38, "QUIT", quit, 0)
 
         if (errorFlag)
             *sp = *rsp = 1;
-        else if (!keyWaiting() && !(*initscript_pos))
-            tell(" OK\n");
+        else if (!keyWaiting() && !(*initscript_pos) && !arg_filenum ){
+	  dump_stack();
+	  tell(" OK\n");
+	}
     }
 }
 
@@ -1046,7 +1105,7 @@ void addBuiltin(cell code, const char* name, const byte flags, builtin f)
 }
 
 /* Program setup and jump to outer interpreter */
-int main()
+int main( int argc, char **argv )
 {
     errorFlag = 0;
 
@@ -1151,6 +1210,11 @@ int main()
     if (errorFlag) return 1;
 
     initscript_pos = (char*)initScript;
+    if( argc>1 ){
+      arg_filenum = argc-1;
+      arg_argv = argv;
+      arg_fs = fopen( argv[arg_filenum], "r" );
+    }
     quit();
     return 0;
 }

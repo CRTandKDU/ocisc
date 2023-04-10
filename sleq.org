@@ -61,6 +61,22 @@ Some sources:
    A simple execution monitor, using Tkinter for GUI, in ~sleq.py~. It loads csv files, where each line lists the space-separated A, B and C values.
    
 ** C implementation
+See [[file:subleq.c]] from Howe's book.
+
 ** Z80 implementation
 * Applications
-** Forth  
+** Forth
+Howe's SUBLEQ machine memory layout:
+  - 0: Zero register
+  - 1: Zero register
+  - 2: Jump to FORTH VM start (W a multiple of 3)
+  - 3: Options variable (16b)
+  - 3 to W-1: System variables
+  - W: /label start/ FORTH VM start, entry point
+  - X: /label vm/ FORTH inner interpreter
+  - Z: FORTH code using vm instructions
+  - End: ... memory area
+
+* Chrono
+<2023-04-09 dim.> ~sqleq.c~ minimal C SUBLEQ engine, w. optional output.
+<2023-04-10 lun.> Returned to ~lbforth~ as a target. Added ~words~ word.

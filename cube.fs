@@ -1,0 +1,1 @@
+: CUBE DUP DUP * * ;
