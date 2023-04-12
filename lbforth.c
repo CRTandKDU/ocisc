@@ -57,7 +57,8 @@ typedef unsigned char byte;
 #define HERE_START (RSTACK_POSITION + RSTACK_SIZE * CELL_SIZE)
 /* Original value before additional words */
 /* #define MAX_BUILTIN_ID 71 */
-#define MAX_BUILTIN_ID 72
+/* Additional BUILTINS: */
+#define MAX_BUILTIN_ID 74
 
 /* Flags and masks for the dictionary */
 #define FLAG_IMMEDIATE 0x80
@@ -194,6 +195,7 @@ const char *initScript =
 short arg_filenum = 0;
 char  **arg_argv;
 FILE  *arg_fs = (FILE *)0;
+FILE  *fth_stdout = (FILE *)0;
 
 /* Additional ancillary functions */
 void tell (const char * );
@@ -237,7 +239,7 @@ void dump_stack(){
 * to e.g. output data on a microcontroller via a serial interface. */
 void putkey(char c)
 {
-    putchar(c);
+  if( (FILE *)0 != fth_stdout ) putc( c, fth_stdout ); else  putc(c, stdout);
 }
 
 /* The primary data input function. This is where you place the code to e.g.
@@ -1035,6 +1037,29 @@ BUILTIN(71, "WORDS", words, 0)
   }
 }
 
+BUILTIN(72, "FOPEN", fthopen, 0)
+{
+  cell len	= pop();
+  cell address	= pop();
+  char buf[32];
+  short i;
+  for( i=0; i<len; i++){
+    buf[i] = memory[ address+i ];
+  }
+  buf[len] = 0;
+  fth_stdout = fopen( buf, "w" );
+  if( NULL == fth_stdout ){
+    tell( "Can't open file " ); tell( buf ); tell( "\n" );
+    fth_stdout = (FILE *)0;
+  }
+}
+
+BUILTIN(73, "FCLOSE", fthclose, 0)
+{
+  if( NULL != fth_stdout ) fclose( fth_stdout );
+  fth_stdout = (FILE *)0;
+}
+
 
 
 /*******************************************************************************
@@ -1204,6 +1229,8 @@ int main( int argc, char **argv )
     ADD_BUILTIN(drot);
     /* Additional words */
     ADD_BUILTIN(words);
+    ADD_BUILTIN(fthopen);
+    ADD_BUILTIN(fthclose);
     
     maxBuiltinAddress = (*here) - 1;
 

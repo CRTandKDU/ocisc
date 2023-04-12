@@ -24,7 +24,10 @@ VARIABLE tdp 0 tdp !
 : PUT t, -1 t, NADDR ;
 : GET -1 t, t, NADDR ;
 : MOV >R R@ DUP t, t, NADDR t, Z NADDR R> Z t, NADDR Z Z NADDR ;
+: ILOAD there 2/ 3 4 * 3 + + MOV 0 SWAP MOV ;
+: IJMP there 2/ 14 + MOV Z Z NADDR ;
+: ISTORE SWAP >R there 2/ 24 + 2DUP MOV 2dup 1+ MOV 7 + MOV R> 0 MOV ;
 ( Debugging help )
-: tdump 0 BEGIN dup t@ . CR 2+ dup there - 0= until drop ;
-
-    
+: tdump 0 BEGIN dup t@ . CR 2+ dup there - 0= UNTIL drop ;
+: trace IF s" out.slq" FOPEN ELSE FCLOSE THEN ;
+: timage 1 trace tdump 0 trace ;
