@@ -7,12 +7,45 @@
 #include <errno.h>
 
 #define NEG_USED_FOR_IO
+#define MAX_SOURCE_LINE_LENGTH 64
 
 void dump_mem( short *m ){
   short *i;
   for( i=m; 0 != *i || 0 != *(i+1) || 0 != *(i+2); i += 3 ){
     printf( "%d\t%d\t%d\n", *i, *(i+1), *(i+2) );
   }
+}
+
+int read_file( char *fn, short *m ){
+  short *i = m;
+  char buf[MAX_SOURCE_LINE_LENGTH];
+  FILE *f = fopen( fn, "r" );
+  int nums_now;
+  int bytes_now;
+  int bytes_consumed = 0, nums_read = 0;
+  if( NULL == f ){
+    fprintf( stderr, "Error %d in fopen.\n", errno );
+    return errno;
+  }
+  (void) fgets( buf, MAX_SOURCE_LINE_LENGTH, f );
+  while( !feof(f) ){
+    /* printf( "READ> %s\n", buf ); */
+    /* Comments begin with `(' at the beginning of a line, extend to EOL */
+    if( '(' == buf[0] ) goto skip;
+    bytes_consumed = 0; nums_read = 0;
+    while( (nums_now =
+	    sscanf( buf + bytes_consumed, "%hd%n", i++, &bytes_now )) > 0 ){
+      bytes_consumed += bytes_now;
+      nums_read += nums_now;
+      /* printf( "\tFIND> %d=%d\n", bytes_now, *(i-1) ); */
+    }
+    i--;
+
+  skip:
+      (void) fgets( buf, 64, f );
+  }
+  /* if( 1 == verbose ) dump_mem( m ); */
+  return 0;
 }
 
 int main( int argc, char **argv ){
@@ -32,16 +65,12 @@ int main( int argc, char **argv ){
   }
 	
   /* short is 2 bytes long (16b)   */
-  short p=0, m[1<<16], *i = m;
+  short p=0, m[1<<16];
   short a, b, c;
+
   /* Read in SUBLEQ source */
-  FILE *f = fopen( argv[optind], "r" );
-  if( NULL == f ){
-    fprintf( stderr, "Error %d in fopen.\n", errno );
-    return errno;
-  }
-  while( fscanf( f, "%hd", i++ ) > 0 );
-  /* if( 1 == verbose ) dump_mem( m ); */
+  if( read_file( argv[optind], m ) ) abort();
+
   /* SUBLEQ interpreter */
 #ifdef NEG_USED_FOR_IO
   for( ; p>=0; ){
