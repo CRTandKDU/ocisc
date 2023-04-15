@@ -422,6 +422,13 @@ byte readWord()
         c = getkey();
     }
     line[0] = len;
+    /* if( arg_fs ){ */
+    /*   char buf[32]; */
+    /*   short i; */
+    /*   for( i=0; i<len; i++ ) buf[i]=line[i+1]; */
+    /*   buf[i]=0; */
+    /*   printf( "READWORD: %s\n", buf ); */
+    /* } */
     return len;
 }
 
