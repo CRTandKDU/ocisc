@@ -36,14 +36,37 @@ VARIABLE tdp 0 tdp !
 : ISTORE SWAP >R there 2/ 36 + 2DUP MOV 2DUP 1+ MOV 7 + MOV R> 0 MOV ;
 ( Tentative SUBLEQ assembler macros )
 ( Alloc in target )
-: talloc tdp @ SWAP tdp +! ;
+: tALLOC tdp @ SWAP tdp +! ;
 ( Variable in target )
-: tvar tcell talloc CREATE DOCOL , ' LIT , , ' EXIT , ;
+: tVAR tcell tALLOC CREATE DOCOL , ' LIT , , ' EXIT , ;
 ( Label in target. If used in SUBLEQ instr has to be halved )
-: tlabel: there 2/ CREATE DOCOL , ' LIT , , ' EXIT , ; 
+: tLABEL: there 2/ CREATE DOCOL , ' LIT , , ' EXIT , ;
+( Creates an empty location in image )
+: tmark there 0 t, ;
+( Conditional and loop macros )
+: tBEGIN talign there ;
+: tAGAIN JMP ;
+: tIF DUP t, Z there 2/ 4 + DUP t, Z Z 6 + t, Z Z NADDR Z t, tmark ;
+: tTHEN tBEGIN 2/ SWAP t! ;
+: tWHILE tIF SWAP ;
+: tREPEAT JMP tTHEN ;
+: tUNTIL DUP t, Z there 2/ 4 + DUP t, Z Z 6 + t, Z Z NADDR Z t, 2/ t, ;
+( Some constants )
+: tINC -1 t, t, NADDR ;
+: tDEC  1 t, t, NADDR ;
+
 ( Debugging help )
 : t. . CR ;
 : tdump 0 BEGIN DUP t@ t. 2+ DUP there - 0= UNTIL DROP ;
 : tmem 0 BEGIN DUP t@ . 9 EMIT DUP tc@ DUP . SPACE EMIT 9 EMIT 1+ DUP tc@ DUP . SPACE EMIT CR 1+ DUP there - 0= UNTIL DROP ;
 : trace IF s" out.slq" FOPEN ELSE FCLOSE THEN ;
 : timage 1 trace tdump 0 trace ;
+( Begin tIMAGE )
+0 t, 0 t,
+tLABEL: entry
+-1 t,
+( Instruction pointer )
+tVAR ip 0 ip t!
+( Top of stack )
+tVAR tos 0 tos t!
+
