@@ -58,7 +58,7 @@ typedef unsigned char byte;
 /* Original value before additional words */
 /* #define MAX_BUILTIN_ID 71 */
 /* Additional BUILTINS: */
-#define MAX_BUILTIN_ID 74
+#define MAX_BUILTIN_ID 75
 
 /* Flags and masks for the dictionary */
 #define FLAG_IMMEDIATE 0x80
@@ -205,7 +205,7 @@ void tell (const char * );
 
 #define INT_DIGITS 19
 
-char *i_to_a( int i )
+char *i_to_a( short i )
 {
   /* Room for INT_DIGITS digits, - and '\0' */
   static char buf[INT_DIGITS + 2];
@@ -410,6 +410,7 @@ byte readWord()
     while ((c = getkey()) != EOF)
     {
         if (c == ' ') continue;
+        if (c == '\t') continue;
         if (c == '\n') continue;
         if (c != '\\') break;
 
@@ -418,7 +419,7 @@ byte readWord()
                 break;
     }
 
-    while (c != ' ' && c != '\n' && c != EOF)
+    while (c != ' ' && c != '\n' && c !='\t' && c != EOF)
     {
         if (len >= (INPUT_LINE_SIZE - 1))
             break;
@@ -1071,6 +1072,13 @@ BUILTIN(73, "FCLOSE", fthclose, 0)
   fth_stdout = (FILE *)0;
 }
 
+BUILTIN(74, "t.", tdot, 0 )
+{
+  cell val = pop();
+  tell( i_to_a( val ) );
+  tell( "\n" );
+}
+
 
 
 /*******************************************************************************
@@ -1242,6 +1250,7 @@ int main( int argc, char **argv )
     ADD_BUILTIN(words);
     ADD_BUILTIN(fthopen);
     ADD_BUILTIN(fthclose);
+    ADD_BUILTIN(tdot);
     
     maxBuiltinAddress = (*here) - 1;
 

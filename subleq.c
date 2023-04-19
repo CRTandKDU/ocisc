@@ -11,8 +11,11 @@
 
 void dump_mem( short *m ){
   short *i;
-  for( i=m; 0 != *i || 0 != *(i+1) || 0 != *(i+2); i += 3 ){
-    printf( "%d\t%d\t%d\n", *i, *(i+1), *(i+2) );
+  for( i=m; ; i++ ){
+    printf( "%d\n", *i );
+    if( (i-m)>2 ){
+      if( 0 == *(i-2) && 0 == *(i-1) && -1 == *i ) break;
+    }
   }
 }
 

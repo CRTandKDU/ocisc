@@ -1,10 +1,9 @@
 ( -*- mode: forth; -*-  )
 ( SUBLEQ image constants )
-2	CONSTANT =cell
-16384	CONSTANT size
-256	CONSTANT =buf
-256	CONSTANT =stksz
-62514	CONSTANT =stack-start
+2 CONSTANT =cell
+4000 CONSTANT size
+100 CONSTANT =buf
+100 CONSTANT =stksz
 ( String delimiter in target image )
 -2 CONSTANT $STRING
 ( Globales controlling SUBLEQ code generation )
@@ -53,7 +52,7 @@ VARIABLE tdp 0 tdp !
 : tREPEAT JMP tTHEN ;
 : tUNTIL DUP t, Z there 2/ 4 + DUP t, Z Z 6 + t, Z Z NADDR Z t, 2/ t, ;
 ( Debugging help )
-
+: t. . CR ;
 : tdump 0 BEGIN DUP t@ t. 2+ DUP there - 0= UNTIL DROP ;
 : tmem 0 BEGIN DUP t@ . 9 EMIT DUP tc@ DUP . SPACE EMIT 9 EMIT 1+ DUP tc@ DUP . SPACE EMIT CR 1+ DUP there - 0= UNTIL DROP ;
 : trace IF s" out.slq" FOPEN ELSE FCLOSE THEN ;
