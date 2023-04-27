@@ -23,24 +23,25 @@ Sources:
 *** A full TTL design
    See also: [[https://en.wikipedia.org/wiki/List_of_7400-series_integrated_circuits]]
    
-| Module           | Chip                 | Ex (Mouser)           | Qty LM | Qty MAIN |
-|------------------+----------------------+-----------------------+--------+----------|
-| Counter          | D-FlipFlop 74LS74    | SN74LS74ANE4          |      0 |        4 |
-| Mod 5            | 3-1 NAND             | SN74LS11N             |      3 |          |
-| Mod 5            | 1-1 NOT              | SN74LS04N             |      3 |        1 |
-| Buffer Registers | 4b PIPO              | SN74LS173AN           |      0 |    3 x 4 |
-|                  | 2x8b PIPO            | 74FCT16374CTPVG       |      0 |        3 |
-| NAND             | NAND 2i, x4          | SN7400NE4             |      1 |        3 |
-| OR               | OR 2i, x4            | SN7432N               |      1 |        2 |
-| LED              |                      |                       |        |        6 |
-| MUX              | MUX 2 x 16b          |                       |        |          |
-| Diff             | DIF 16b              |                       |        |          |
-| Comp 0           | COMP 4b to 0,        | SN74LS85N             |      0 |        4 |
-|                  | COMP 8b =            | SN74LS688NE4          |      0 |        2 |
-| RAM              | RAM 16b x 256K words | IS41LV16256C-35TLI    |      0 |        1 |
-|                  | RAM 16b x 16M words  | IS42S16160J           |      0 |        1 |
-|                  | Flash 16b x 128      | SST39VF200A-70-4C-EKE |      0 |        1 |
-|                  |                      |                       |        |          |
+| Module           | Chip                  | Ex (Mouser)           | Qty LM | Qty MAIN |
+|------------------+-----------------------+-----------------------+--------+----------|
+| Counter          | D-FlipFlop 74LS74     | SN74LS74ANE4          |      0 |        4 |
+| Mod 5            | 3-1 NAND              | SN74LS11N             |      3 |          |
+| Mod 5            | 1-1 NOT               | SN74LS04N             |      3 |        1 |
+| Buffer Registers | 4b PIPO               | SN74LS173AN           |      0 |    3 x 4 |
+|                  | 2x8b PIPO             | 74FCT16374CTPVG       |      0 |        3 |
+| NAND             | NAND 2i, x4           | SN7400NE4             |      1 |        3 |
+| OR               | OR 2i, x4             | SN7432N               |      1 |        2 |
+| LED              |                       |                       |        |        6 |
+| MUX              | MUX 2 x 16b           |                       |        |          |
+| Diff             | DIF 16b               |                       |        |          |
+| Comp 0           | COMP 4b to 0,         | SN74LS85N             |      0 |        4 |
+|                  | COMP 8b =             | SN74LS688NE4          |      0 |        2 |
+| RAM              | RAM 16b x 256K words  | IS41LV16256C-35TLI    |      0 |        1 |
+|                  | RAM 16b x 16M words   | IS42S16160J           |      0 |        1 |
+|                  | Flash 16b x 128       | SST39VF200A-70-4C-EKE |      0 |        1 |
+| Buffer/Driver    | Controlled buffer 16b | SN74AHCT16244 1       |        |        1 |
+|                  |                       |                       |        |          |
 
 
 Some sources:
@@ -77,6 +78,27 @@ Howe's SUBLEQ machine memory layout:
   - Z: FORTH code using vm instructions
   - End: ... memory area
 
+** SUBTLE A hierarchy of machines
+Subtract and test for lower than or equal.
+
+*** Hardware machine: electronics
+  - Logical circuit model
+  - C-based Emulation program
+
+*** SUBTLE Assembly
+  - Instructions: HALT, JMP, MOV, ILOAD/ISTORE, ADD, SUB, PUT/GET, NADDR, NOOP
+  - Macros: tVAR, tLABEL, tBEGIN/tAGAIN/tWHILE/tREPEAT/tUNTIL, tIF/tTHEN
+
+*** FORTH inner interpreter (in SUBTLE Assembly)
+Conventions and memory mapping.
+
+*** FORTH VM Assembly
+  - Stack manipulation
+  - Memory manipulation
+  - I/O
+
+*** FORTH primitive words    
+    
 * Chrono
 <2023-04-09 dim.> ~sqleq.c~ minimal C SUBLEQ engine, w. optional output.
 <2023-04-10 lun.> Returned to ~lbforth~ as a target. Added ~words~ word.

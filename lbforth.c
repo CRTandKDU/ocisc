@@ -205,22 +205,25 @@ void tell (const char * );
 
 #define INT_DIGITS 19
 
-char *i_to_a( short i )
+char *i_to_a( short i, short base )
 {
+  static char figure[] = "0123456789ABCDEF";
   /* Room for INT_DIGITS digits, - and '\0' */
   static char buf[INT_DIGITS + 2];
   char *p = buf + INT_DIGITS + 1;	/* points to terminating '\0' */
   if (i >= 0) {
     do {
-      *--p = '0' + (i % 10);
-      i /= 10;
+      /* *--p = '0' + (i % base); */
+      *--p = figure[ i % base ];
+      i /= base;
     } while (i != 0);
     return p;
   }
   else {			/* i < 0 */
     do {
-      *--p = '0' - (i % 10);
-      i /= 10;
+      /* *--p = '0' - (i % base); */
+      *--p = figure[ -(i % base) ];
+      i /= base;
     } while (i != 0);
     *--p = '-';
   }
@@ -231,7 +234,7 @@ void dump_stack(){
   short p = 1;
   /* printf( "%d\t%d\n", p, *sp ); */
   while( p != *sp ){
-    tell( i_to_a( stack[ p++ ] ) );
+    tell( i_to_a( stack[ p++ ], *base ) );
     tell( " " );
  }
 }
@@ -1075,7 +1078,7 @@ BUILTIN(73, "FCLOSE", fthclose, 0)
 BUILTIN(74, "t.", tdot, 0 )
 {
   cell val = pop();
-  tell( i_to_a( val ) );
+  tell( i_to_a( val, *base ) );
   tell( "\n" );
 }
 

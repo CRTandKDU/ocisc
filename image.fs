@@ -1,4 +1,5 @@
 ( -*- mode: forth; -*-  )
+( Load after howe.fs )
 ( Begin target image )
 0 t, 0 t,
 tLABEL: entry
@@ -6,16 +7,16 @@ tLABEL: entry
 ( Options byte )
 tVAR {options} 0 {options} t!
 ( Separate system from user vocabulary )
-tVAR CTE_PRIMITIVE 0 CTE_PRIMITIVE t!
+tVAR CONST_PRIMITIVE 0 CONST_PRIMITIVE t!
 ( Some constants )
-tVAR CTE_HBIT 32768 CTE_HBIT t!
-tVAR CTE_IMAX 32767 CTE_IMAX t!
-tVAR CTE_NEG2 -2 CTE_NEG2 t!
-tVAR CTE_NEG1 -1 CTE_NEG1 t!
-tVAR CTE_ONE 1 CTE_ONE t!
-tVAR CTE_TWO 2 CTE_TWO t!
-: tINC  CTE_ONE  t, t, NADDR ;
-: tDEC  CTE_NEG1 t, t, NADDR ;
+tVAR CONST_HBIT 32768 CONST_HBIT t!
+tVAR CONST_IMAX 32767 CONST_IMAX t!
+tVAR CONST_NEG2 -2 CONST_NEG2 t!
+tVAR CONST_NEG1 -1 CONST_NEG1 t!
+tVAR CONST_ONE 1 CONST_ONE t!
+tVAR CONST_TWO 2 CONST_TWO t!
+: tINC  CONST_ONE  t, t, NADDR ;
+: tDEC  CONST_NEG1 t, t, NADDR ;
 tVAR W 0 W t!
 tVAR X 0 X t!
 tVAR T 0 T t!
@@ -44,5 +45,18 @@ start entry 2* t!
 {sp0} {sp} MOV
 {rp0} {rp} MOV
 {cold} ip MOV
-halt
+( VM Forth inner interpreter )
+tLABEL: vm
+ip W MOV
+ip tINC
+T W ILOAD
+T W MOV
+CONST_PRIMITIVE T SUB
+T tIF- W IJMP tTHEN ++rp
+ip {rp} ISTORE
+W ip MOV
+vm JMP
+HALT
+( End of image )
+
 

@@ -19,7 +19,7 @@ void dump_mem( short *m ){
   }
 }
 
-int read_file( char *fn, short *m ){
+int read_file( char *fn, short *m, short base ){
   short *i = m;
   char buf[MAX_SOURCE_LINE_LENGTH];
   FILE *f = fopen( fn, "r" );
@@ -34,10 +34,13 @@ int read_file( char *fn, short *m ){
   while( !feof(f) ){
     /* printf( "READ> %s\n", buf ); */
     /* Comments begin with `(' at the beginning of a line, extend to EOL */
-    if( '(' == buf[0] ) goto skip;
+    /* v at the beginning of a line announces the ram bin format of Logisim */
+    if( '(' == buf[0] || 'v' == buf[0] ) goto skip;
     bytes_consumed = 0; nums_read = 0;
     while( (nums_now =
-	    sscanf( buf + bytes_consumed, "%hd%n", i++, &bytes_now )) > 0 ){
+	    ( 16 == base ?
+	      sscanf( buf + bytes_consumed, "%x%n", i++, &bytes_now ) :
+	      sscanf( buf + bytes_consumed, "%hd%n", i++, &bytes_now ))) > 0 ){
       bytes_consumed += bytes_now;
       nums_read += nums_now;
       /* printf( "\tFIND> %d=%d\n", bytes_now, *(i-1) ); */
@@ -54,13 +57,18 @@ int read_file( char *fn, short *m ){
 int main( int argc, char **argv ){
   int opt	= 0;
   short verbose = 0;
+  short base    = 10;
   /* Handle command line */
   opterr = 0;
-  while((opt = getopt(argc, argv, "v")) != -1){
+  while((opt = getopt(argc, argv, "vh")) != -1){
     switch( opt ){
     case 'v':
       /* Use subleq -v <.slq source file> to dump memory on exit */
       verbose = 1;
+      break;
+    case 'h':
+      /* SUBLEQ image is in hex */
+      base = 16;
       break;
     default:
       abort();
@@ -72,7 +80,7 @@ int main( int argc, char **argv ){
   short a, b, c;
 
   /* Read in SUBLEQ source */
-  if( read_file( argv[optind], m ) ) abort();
+  if( read_file( argv[optind], m, base ) ) abort();
 
   /* SUBLEQ interpreter */
 #ifdef NEG_USED_FOR_IO

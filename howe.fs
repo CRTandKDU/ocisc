@@ -48,13 +48,13 @@ VARIABLE tdp 0 tdp !
 : tBEGIN talign there ;
 : tAGAIN JMP ;
 : tIF DUP t, Z there 2/ 4 + DUP t, Z Z 6 + t, Z Z NADDR Z t, tmark ;
+: tIF- t, Z there 2/ 4 + t, Z Z there 2/ 4 + t, Z Z tmark ;
 : tTHEN tBEGIN 2/ SWAP t! ;
 : tWHILE tIF SWAP ;
 : tREPEAT JMP tTHEN ;
 : tUNTIL DUP t, Z there 2/ 4 + DUP t, Z Z 6 + t, Z Z NADDR Z t, 2/ t, ;
 ( Debugging help )
-
 : tdump 0 BEGIN DUP t@ t. 2+ DUP there - 0= UNTIL DROP ;
 : tmem 0 BEGIN DUP t@ . 9 EMIT DUP tc@ DUP . SPACE EMIT 9 EMIT 1+ DUP tc@ DUP . SPACE EMIT CR 1+ DUP there - 0= UNTIL DROP ;
 : trace IF s" out.slq" FOPEN ELSE FCLOSE THEN ;
-: timage 1 trace tdump 0 trace ;
+: timage 1 trace STR" v2.0 raw" type CR tdump 0 trace ;
