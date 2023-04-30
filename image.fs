@@ -15,14 +15,14 @@ tVAR CONST_NEG2 -2 CONST_NEG2 t!
 tVAR CONST_NEG1 -1 CONST_NEG1 t!
 tVAR CONST_ONE 1 CONST_ONE t!
 tVAR CONST_TWO 2 CONST_TWO t!
-: tINC  CONST_ONE  t, t, NADDR ;
-: tDEC  CONST_NEG1 t, t, NADDR ;
+tVAR INVREG 0 INVREG t!
 tVAR W 0 W t!
 tVAR X 0 X t!
 tVAR T 0 T t!
 tVAR H 0 H t!
 ( Jump vector )
 tVAR {cold} 0 {cold} t!
+tVAR {last} 0 {last} t!
 ( Instruction pointer )
 tVAR ip 0 ip t!
 ( Top of stack )
@@ -35,6 +35,9 @@ tVAR {rp}
 tVAR {sp0}
 tVAR {sp}
 =stack-start =stksz 2* + DUP {sp0} t! {sp} t!
+: tINC  CONST_ONE  t, t, NADDR ;
+: tDEC  CONST_NEG1 t, t, NADDR ;
+: tINV  INVREG ZERO DUP INVREG SUB DUP INVREG SWAP MOV tDEC ;
 : ++sp {sp} tDEC ;
 : --sp {sp} tINC ;
 : ++rp {rp} tINC ;
@@ -56,6 +59,32 @@ T tIF- W IJMP tTHEN ++rp
 ip {rp} ISTORE
 W ip MOV
 vm JMP
+( Additional vocabulary for target FORTH )
+( Header for words Name Field Address )
+: tNFA tcell + ;
+( Header for words Code Field Address )
+: tCFA tNFA DUP C@ 31 and + tcell + tdown ;
+( Header for words Building )
+: count DUP 1+ SWAP C@ ;
+: tpack talign DUP tc, 0 DO count tc, LOOP DROP ;
+: tcompile-only tlast @ tnfa t@ 32 or tlast @ tnfa t! ;
+: timmediate tlast  @ tnfa t@ 40 or tlast @ tnfa t! ;
+: thead talign there tlast @ t, tlast ! WORD talign tpack talign ;
+: header thead ;
+: :a header ;
+: ;a vm JMP ;
+( Assembly primitive words Root vocabulary )
+:a bye HALT ;a
+:a 1- tos tDEC ;a
+:a 1+ tos tINC ;a
+:a invert tos tINV ;a
+:a [@] tos tos ILOAD ;a
+:a [!] W {sp} ILOAD W tos ISTORE --sp tos {sp} ILOAD --sp ;a
+:a opEMIT tos PUT tos {sp} ILOAD --sp ;a
+:a opKEY ++sp tos {sp} ISTORE tos GET ;a
+:a opPUSH ++sp tos {sp} ISTORE tos ip ILOAD ip tINC ;a
+there 2/ CONST_PRIMITIVE t!
+there 2/ {cold} t!
 HALT
 ( End of image )
 

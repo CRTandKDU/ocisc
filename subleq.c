@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
+#include "sl_monitor.h"
 
 #define NEG_USED_FOR_IO
 #define MAX_SOURCE_LINE_LENGTH 64
@@ -58,13 +59,17 @@ int main( int argc, char **argv ){
   int opt	= 0;
   short verbose = 0;
   short base    = 10;
+  short debug   = 0;
   /* Handle command line */
   opterr = 0;
-  while((opt = getopt(argc, argv, "vh")) != -1){
+  while((opt = getopt(argc, argv, "vhd")) != -1){
     switch( opt ){
     case 'v':
       /* Use subleq -v <.slq source file> to dump memory on exit */
       verbose = 1;
+      break;
+    case 'd':
+      debug = 1;
       break;
     case 'h':
       /* SUBLEQ image is in hex */
@@ -85,7 +90,9 @@ int main( int argc, char **argv ){
   /* SUBLEQ interpreter */
 #ifdef NEG_USED_FOR_IO
   for( ; p>=0; ){
+    if( debug ) mon_state( m );
     a = m[p++]; b=m[p++]; c=m[p++];
+    if( debug ) mon_step( p-3, a, b, c );
     a < 0 ? m[b] = getchar() :
       b < 0 ? putchar( m[a] ) :
       ( m[b] -= m[a] ) <= 0 ? p = c :

@@ -12,6 +12,7 @@ VARIABLE VERBOSITY 0 VERBOSITY !
 ( Image memory allocation )
 size CELLS ALLOC CONSTANT tflash
 VARIABLE tdp 0 tdp !
+VARIABLE tlast 0 tlast !
 ( Target building words )
 : tcell 2 ;
 : there tdp @ ;
@@ -25,13 +26,13 @@ VARIABLE tdp 0 tdp !
 : NADDR there 2/ 1+ t, ;
 : HALT Z Z -1 t, ;
 : NOOP Z Z NADDR ;
-: ZERO t, t, NADDR ;
+: ZERO DUP t, t, NADDR ;
 : JMP Z Z t, ;
 : ADD t, Z NADDR Z t, NADDR Z Z NADDR ;
 : SUB SWAP t, t, NADDR ;
 : PUT t, -1 t, NADDR ;
 : GET -1 t, t, NADDR ;
-: MOV >R R@ DUP t, t, NADDR t, Z NADDR R> Z t, NADDR Z Z NADDR ;
+: MOV 2/ >R R@ DUP t, t, NADDR 2/ t, Z NADDR R> Z t, NADDR Z Z NADDR ;
 : ILOAD there 2/ 3 4 * 3 + + MOV 0 SWAP MOV ;
 : IJMP there 2/ 14 + MOV Z Z NADDR ;
 : ISTORE SWAP >R there 2/ 36 + 2DUP MOV 2DUP 1+ MOV 7 + MOV R> 0 MOV ;
@@ -44,6 +45,8 @@ VARIABLE tdp 0 tdp !
 : tLABEL: there 2/ CREATE DOCOL , ' LIT , , ' EXIT , ;
 ( Creates an empty location in image )
 : tmark there 0 t, ;
+( Align cell downwards )
+: tdown tcell negate and ;
 ( Conditional and loop macros )
 : tBEGIN talign there ;
 : tAGAIN JMP ;
@@ -54,7 +57,7 @@ VARIABLE tdp 0 tdp !
 : tREPEAT JMP tTHEN ;
 : tUNTIL DUP t, Z there 2/ 4 + DUP t, Z Z 6 + t, Z Z NADDR Z t, 2/ t, ;
 ( Debugging help )
-: tdump 0 BEGIN DUP t@ t. 2+ DUP there - 0= UNTIL DROP ;
-: tmem 0 BEGIN DUP t@ . 9 EMIT DUP tc@ DUP . SPACE EMIT 9 EMIT 1+ DUP tc@ DUP . SPACE EMIT CR 1+ DUP there - 0= UNTIL DROP ;
+: tdump 0 BEGIN DUP t@ t. 2+ DUP there - 0>= UNTIL DROP ;
+: tmem 0 BEGIN DUP t@ . 9 EMIT DUP tc@ DUP . SPACE EMIT 9 EMIT 1+ DUP tc@ DUP . SPACE EMIT CR 1+ DUP there - 0>= UNTIL DROP ;
 : trace IF s" out.slq" FOPEN ELSE FCLOSE THEN ;
 : timage 1 trace STR" v2.0 raw" type CR tdump 0 trace ;
