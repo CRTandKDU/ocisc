@@ -26,16 +26,16 @@ VARIABLE tlast 0 tlast !
 : NADDR there 2/ 1+ t, ;
 : HALT Z Z -1 t, ;
 : NOOP Z Z NADDR ;
-: ZERO DUP t, t, NADDR ;
+: ZERO DUP 2/ t, 2/ t, NADDR ;
 : JMP Z Z t, ;
-: ADD t, Z NADDR Z t, NADDR Z Z NADDR ;
-: SUB SWAP t, t, NADDR ;
-: PUT t, -1 t, NADDR ;
-: GET -1 t, t, NADDR ;
+: ADD 2/ t, Z NADDR Z 2/ t, NADDR Z Z NADDR ;
+: SUB SWAP 2/ t, 2/ t, NADDR ;
+: PUT 2/ t, -1 t, NADDR ;
+: GET 2/ -1 t, t, NADDR ;
 : MOV 2/ >R R@ DUP t, t, NADDR 2/ t, Z NADDR R> Z t, NADDR Z Z NADDR ;
-: ILOAD there 2/ 3 4 * 3 + + MOV 0 SWAP MOV ;
-: IJMP there 2/ 14 + MOV Z Z NADDR ;
-: ISTORE SWAP >R there 2/ 36 + 2DUP MOV 2DUP 1+ MOV 7 + MOV R> 0 MOV ;
+: ILOAD there 2/ 3 4 * 3 + + 2* MOV 0 SWAP MOV ;
+: IJMP there 2/ 14 + 2* MOV Z Z NADDR ;
+: ISTORE SWAP >R there 2/ 36 + 2DUP 2* MOV 2DUP 1+ 2* MOV 7 + 2* MOV R> 0 MOV ;
 ( Tentative SUBLEQ assembler macros )
 ( Alloc in target )
 : tALLOC tdp @ SWAP tdp +! ;
@@ -50,14 +50,17 @@ VARIABLE tlast 0 tlast !
 ( Conditional and loop macros )
 : tBEGIN talign there ;
 : tAGAIN JMP ;
-: tIF DUP t, Z there 2/ 4 + DUP t, Z Z 6 + t, Z Z NADDR Z t, tmark ;
-: tIF- t, Z there 2/ 4 + t, Z Z there 2/ 4 + t, Z Z tmark ;
+: tIF 2/ DUP t, Z there 2/ 4 + DUP t, Z Z 6 + t, Z Z NADDR Z t, tmark ;
+: tIF- 2/ t, Z there 2/ 4 + t, Z Z there 2/ 4 + t, Z Z tmark ;
 : tTHEN tBEGIN 2/ SWAP t! ;
 : tWHILE tIF SWAP ;
 : tREPEAT JMP tTHEN ;
-: tUNTIL DUP t, Z there 2/ 4 + DUP t, Z Z 6 + t, Z Z NADDR Z t, 2/ t, ;
+: tUNTIL 2/ DUP t, Z there 2/ 4 + DUP t, Z Z 6 + t, Z Z NADDR Z t, 2/ t, ;
 ( Debugging help )
 : tdump 0 BEGIN DUP t@ t. 2+ DUP there - 0>= UNTIL DROP ;
-: tmem 0 BEGIN DUP t@ . 9 EMIT DUP tc@ DUP . SPACE EMIT 9 EMIT 1+ DUP tc@ DUP . SPACE EMIT CR 1+ DUP there - 0>= UNTIL DROP ;
+: tmem. DUP . 9 EMIT ;
+: tmem@. DUP t@ . 9 EMIT ;
+: tmemC@. DUP tc@ DUP . SPACE EMIT 9 EMIT ;
+: tmem 0 BEGIN tmem. tmem@. tmemC@. 1+ tmemC@. CR 1+ DUP there - 0>= UNTIL DROP ;
 : trace IF s" out.slq" FOPEN ELSE FCLOSE THEN ;
 : timage 1 trace STR" v2.0 raw" type CR tdump 0 trace ;

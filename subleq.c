@@ -92,9 +92,9 @@ int main( int argc, char **argv ){
   for( ; p>=0; ){
     if( debug ) mon_state( m );
     a = m[p++]; b=m[p++]; c=m[p++];
-    if( debug ) mon_step( p-3, a, b, c );
-    a < 0 ? m[b] = getchar() :
-      b < 0 ? putchar( m[a] ) :
+    if( debug ) mon_step( m, p-3, a, b, c );
+    a == -1 ? m[b] = getchar() :
+      b == -1  ? putchar( m[a] ) :
       ( m[b] -= m[a] ) <= 0 ? p = c :
       0;
   }

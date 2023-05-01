@@ -31,9 +31,32 @@ void mon_state( short *m ){
 	  m[ reg_W ], m[ reg_X ], m[ reg_T ], m[ reg_H ] );
 }
 
-void mon_step( short p, short a, short b, short c ){
-  char sel;
-  printf( "%4d> %4hd\t%4hd\t%4hd\nType s(tep) to continue: ", p, a, b, c );
-  scanf( "%c", &sel );
-}
+void mon_step( short *m, short p, short a, short b, short c ){
+  char sel[32], *res;
+  printf( "%4d> %4hd\t%4hd\t%4hd\n", p, a, b, c );
+  printf( "Type: <RET>\t\t to step\
+\n      m <addr>\t\t to read \
+\n      w <addr> <val>\t to write \
+	  \n" );
+ ask:
+  res = gets( sel );
+  if( 0 == sel[0] ) return;
 
+  int addr, val, n;
+  switch( sel[0] ){
+  case 'm':
+    sscanf( sel, "%*s %d", &addr );
+    printf( "%4d> %6d\n", addr, m[addr] );
+    break;
+  case 'w':
+    n = sscanf( sel, "%*s %d %d", &addr, &val );
+    if( 2 == n ){
+      printf( "%4hd> %6hd\t", addr, m[addr] );
+      m[addr] = val;
+      printf( "-> %6d\n", m[addr] );
+    }
+    else{ printf( "Can't read!\n" ); }
+    break;
+  }
+  goto ask;
+}

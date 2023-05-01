@@ -4,11 +4,11 @@
 0 t, 0 t,
 tLABEL: entry
 -1 t,
-( Options byte )
+( Options byte @3 )
 tVAR {options} 0 {options} t!
-( Separate system from user vocabulary )
+( Separate system from user vocabulary @4 )
 tVAR CONST_PRIMITIVE 0 CONST_PRIMITIVE t!
-( Some constants )
+( Some constants @5 )
 tVAR CONST_HBIT 32768 CONST_HBIT t!
 tVAR CONST_IMAX 32767 CONST_IMAX t!
 tVAR CONST_NEG2 -2 CONST_NEG2 t!
@@ -35,20 +35,20 @@ tVAR {rp}
 tVAR {sp0}
 tVAR {sp}
 =stack-start =stksz 2* + DUP {sp0} t! {sp} t!
-: tINC  CONST_ONE  t, t, NADDR ;
-: tDEC  CONST_NEG1 t, t, NADDR ;
+: tDEC  CONST_ONE 2/  t, 2/ t, NADDR ;
+: tINC  CONST_NEG1 2/ t, 2/ t, NADDR ;
 : tINV  INVREG ZERO DUP INVREG SUB DUP INVREG SWAP MOV tDEC ;
 : ++sp {sp} tDEC ;
 : --sp {sp} tINC ;
 : ++rp {rp} tINC ;
 : --rp {rp} tDEC ;
-( VM entry point )
+( VM entry point @24 )
 tLABEL: start
 start entry 2* t!
 {sp0} {sp} MOV
 {rp0} {rp} MOV
 {cold} ip MOV
-( VM Forth inner interpreter )
+( VM Forth inner interpreter @60 )
 tLABEL: vm
 ip W MOV
 ip tINC
@@ -63,7 +63,7 @@ vm JMP
 ( Header for words Name Field Address )
 : tNFA tcell + ;
 ( Header for words Code Field Address )
-: tCFA tNFA DUP C@ 31 and + tcell + tdown ;
+: tCFA tNFA DUP tc@ 31 and + tcell + tdown ;
 ( Header for words Building )
 : count DUP 1+ SWAP C@ ;
 : tpack talign DUP tc, 0 DO count tc, LOOP DROP ;
@@ -74,18 +74,23 @@ vm JMP
 : :a header ;
 : ;a vm JMP ;
 ( Assembly primitive words Root vocabulary )
+( bye CFA @414 )
 :a bye HALT ;a
 :a 1- tos tDEC ;a
 :a 1+ tos tINC ;a
 :a invert tos tINV ;a
 :a [@] tos tos ILOAD ;a
 :a [!] W {sp} ILOAD W tos ISTORE --sp tos {sp} ILOAD --sp ;a
+( opEMIT CFA @806 )
 :a opEMIT tos PUT tos {sp} ILOAD --sp ;a
 :a opKEY ++sp tos {sp} ISTORE tos GET ;a
+( opPUSH CFA @1004 )
 :a opPUSH ++sp tos {sp} ISTORE tos ip ILOAD ip tINC ;a
 there 2/ CONST_PRIMITIVE t!
 there 2/ {cold} t!
+502 t,
+72 t,
+403 t,
+207 t,
 HALT
 ( End of image )
-
-

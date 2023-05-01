@@ -4,5 +4,5 @@
 /* See also: [[https://github.com/howerj/subleq]] */
 
 void mon_state( short * );
-void mon_step( short, short, short, short );
+void mon_step( short *, short, short, short, short );
 
