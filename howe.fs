@@ -52,9 +52,10 @@ VARIABLE tlast 0 tlast !
 : tAGAIN JMP ;
 : tIF 2/ DUP t, Z there 2/ 4 + DUP t, Z Z 6 + t, Z Z NADDR Z t, tmark ;
 : tIF- 2/ t, Z there 2/ 4 + t, Z Z there 2/ 4 + t, Z Z tmark ;
+: tIF+ Z 2/ t, tmark ;
 : tTHEN tBEGIN 2/ SWAP t! ;
 : tWHILE tIF SWAP ;
-: tREPEAT JMP tTHEN ;
+: tREPEAT 2/ JMP tTHEN ;
 : tUNTIL 2/ DUP t, Z there 2/ 4 + DUP t, Z Z 6 + t, Z Z NADDR Z t, 2/ t, ;
 ( Debugging help )
 : tdump 0 BEGIN DUP t@ t. 2+ DUP there - 0>= UNTIL DROP ;
@@ -64,3 +65,5 @@ VARIABLE tlast 0 tlast !
 : tmem 0 BEGIN tmem. tmem@. tmemC@. 1+ tmemC@. CR 1+ DUP there - 0>= UNTIL DROP ;
 : trace IF s" out.slq" FOPEN ELSE FCLOSE THEN ;
 : timage 1 trace STR" v2.0 raw" type CR tdump 0 trace ;
+: tsymbol VERBOSITY @ IF . TYPE CR ELSE DROP DROP THEN ;
+1 VERBOSITY !

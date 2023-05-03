@@ -15,17 +15,22 @@ tVAR CONST_NEG2 -2 CONST_NEG2 t!
 tVAR CONST_NEG1 -1 CONST_NEG1 t!
 tVAR CONST_ONE 1 CONST_ONE t!
 tVAR CONST_TWO 2 CONST_TWO t!
+tVAR CONST_16 16 CONST_16 t!
 tVAR INVREG 0 INVREG t!
 tVAR W 0 W t!
 tVAR X 0 X t!
 tVAR T 0 T t!
 tVAR H 0 H t!
+tVAR bt 0 bt t!
+tVAR bl1 0 bl1 t!
+tVAR bl2 0 bl2 t!
 ( Jump vector )
 tVAR {cold} 0 {cold} t!
 tVAR {last} 0 {last} t!
 ( Instruction pointer )
 tVAR ip 0 ip t!
 ( Top of stack )
+STR" tVAR tos" there 2/ tsymbol
 tVAR tos 0 tos t!
 ( Return stack pointer )
 tVAR {rp0}
@@ -75,22 +80,72 @@ vm JMP
 : ;a vm JMP ;
 ( Assembly primitive words Root vocabulary )
 ( bye CFA @414 )
+STR" bye" there 2/ tsymbol
 :a bye HALT ;a
 :a 1- tos tDEC ;a
 :a 1+ tos tINC ;a
 :a invert tos tINV ;a
 :a [@] tos tos ILOAD ;a
 :a [!] W {sp} ILOAD W tos ISTORE --sp tos {sp} ILOAD --sp ;a
-( opEMIT CFA @806 )
+:a - W {sp} ILOAD tos W SUB W tos MOV --sp ;a
+:a + W {sp} ILOAD tos W ADD --sp ;a
+:a r@ ++sp tos {sp} ISTORE tos {rp} ILOAD ;a
+:a rdrop --rp ;a
+:a rp@ ++sp tos {sp} ISTORE {rp} tos MOV ;a
+:a rp! tos {rp} MOV tos {sp} ILOAD --sp ;a
+:a sp@ ++sp tos {sp} ISTORE {sp} tos MOV tos tINC ;a
+:a sp! tos {sp} MOV ;a
+( Assembly ops )
 :a opEMIT tos PUT tos {sp} ILOAD --sp ;a
 :a opKEY ++sp tos {sp} ISTORE tos GET ;a
-( opPUSH CFA @1004 )
+STR" opPUSH" there 2/ tsymbol
 :a opPUSH ++sp tos {sp} ISTORE tos ip ILOAD ip tINC ;a
+:a opSWAP tos W MOV tos {sp} ILOAD w {sp} ISTORE ;a
+:a opDUP ++sp tos {sp} ISTORE ;a
+:a opOVER W {sp} ILOAD ++sp tos {sp} ISTORE W tos MOV ;a
+:a opDROP tos {sp} ILOAD --sp ;a
+:a opTOR ++rp tos {rp} ISTORE tos {sp} ILOAD --sp ;a
+:a opFROMR ++sp tos {sp} ISTORE tos {rp} ILOAD --rp ;a
+:a opEXIT ip {rp} ILOAD ;a
+( BRANCH group )
+:a opNEXT W {rp} ILOAD
+W tIF W tDEC W {rp} ISTORE T ip ILOAD T ip MOV vm JMP
+    tTHEN ip TINC --rp ;a
+:a opJUMP ip ip ILOAD ;a
+:a opJUMPZ tos W MOV 0 T MOV
+W tIF CONST_NEG1 T MOV tTHEN tos {sp} ILOAD --sp
+T tIF ip tINC vm JMP tTHEN W ip ILOAD w ip MOV ;a
+( COMPARISON group )
+:a op0> tos W MOV 0 tos MOV W tIF+ CONST_NEG1 tos MOV tTHEN ;a
+:a op0= tos W MOV CONST_NEG1 tos MOV
+W tIF 0 tos MOV tTHEN W tDEC W tIF+ 0 tos MOV tTHEN ;a
+:a op0< tos W MOV 0 tos MOV
+W tIF- CONST_NEG1 tos MOV tTHEN W tINC W tIF- CONST_NEG1 tos MOV tTHEN ;a
+:a op< W {sp} ILOAD --sp tos W SUB 0 tos MOV
+W tIF- CONST_NEG1 tos MOV tTHEN ;a
+:a op> W {sp} ILOAD --sp tos W SUB 0 tos MOV
+W tIF+ CONST_NEG1 tos MOV tTHEN ;a
+( Arithmetic )
+STR" op2*" there 2/ tsymbol
+:a op2* tos tos ADD ;a
+( See also div2.fs )
+STR" op2/" there 2/ tsymbol there
+:a op2/ CONST_16 W MOV X ZERO
+tBEGIN W tDEC W tWHILE
+    X X ADD
+    tos bt MOV 0 bl1 MOV
+    bt tIF- CONST_NEG1 bl1 MOV tTHEN bt tINC bt tIF- CONST_NEG1 bl1 MOV tTHEN
+    bl1 tIF X tINC tTHEN
+    tos tos ADD
+tREPEAT
+X tos MOV ;a
+tcfa . CR
+( End of primitives )
 there 2/ CONST_PRIMITIVE t!
 there 2/ {cold} t!
-502 t,
-72 t,
-403 t,
-207 t,
+884 7 + t,
+100 t,
+2109 t,
+208 4 + t,
 HALT
 ( End of image )

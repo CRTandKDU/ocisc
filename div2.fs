@@ -1,0 +1,5 @@
+( -*- mode: forth; -*-  )
+( lbforth )
+: TOPB DUP 0< IF -1 SWAP DROP EXIT THEN DUP 1+ 0< IF -1 SWAP DROP EXIT THEN DROP 0 ;
+: DIV2 0 15 0 DO 2* OVER TOPB IF 1+ THEN SWAP 2* SWAP LOOP SWAP DROP ;
+
