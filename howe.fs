@@ -65,5 +65,5 @@ VARIABLE tlast 0 tlast !
 : tmem 0 BEGIN tmem. tmem@. tmemC@. 1+ tmemC@. CR 1+ DUP there - 0>= UNTIL DROP ;
 : trace IF s" out.slq" FOPEN ELSE FCLOSE THEN ;
 : timage 1 trace STR" v2.0 raw" type CR tdump 0 trace ;
-: tsymbol VERBOSITY @ IF . TYPE CR ELSE DROP DROP THEN ;
+: tsymbol VERBOSITY @ IF there 2/ . TYPE CR ELSE DROP DROP THEN ;
 1 VERBOSITY !

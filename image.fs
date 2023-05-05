@@ -30,7 +30,6 @@ tVAR {last} 0 {last} t!
 ( Instruction pointer )
 tVAR ip 0 ip t!
 ( Top of stack )
-STR" tVAR tos" there 2/ tsymbol
 tVAR tos 0 tos t!
 ( Return stack pointer )
 tVAR {rp0}
@@ -76,29 +75,27 @@ vm JMP
 : timmediate tlast  @ tnfa t@ 40 or tlast @ tnfa t! ;
 : thead talign there tlast @ t, tlast ! WORD talign tpack talign ;
 : header thead ;
-: :a header ;
+: :a there CREATE DOCOL , ' LIT , , ' 2/ , ' t, , ' EXIT , ;
 : ;a vm JMP ;
-( Assembly primitive words Root vocabulary )
-( bye CFA @414 )
-STR" bye" there 2/ tsymbol
-:a bye HALT ;a
-:a 1- tos tDEC ;a
-:a 1+ tos tINC ;a
-:a invert tos tINV ;a
+( Assembly ops are SUBLEQ code fragments to which )
+( image FORTH words are compiled. They are VM low )
+( level instructions )
+:a opBYE HALT ;a
+:a op1- tos tDEC ;a
+:a op1+ tos tINC ;a
+:a opINVERT tos tINV ;a
 :a [@] tos tos ILOAD ;a
 :a [!] W {sp} ILOAD W tos ISTORE --sp tos {sp} ILOAD --sp ;a
-:a - W {sp} ILOAD tos W SUB W tos MOV --sp ;a
-:a + W {sp} ILOAD tos W ADD --sp ;a
-:a r@ ++sp tos {sp} ISTORE tos {rp} ILOAD ;a
-:a rdrop --rp ;a
-:a rp@ ++sp tos {sp} ISTORE {rp} tos MOV ;a
-:a rp! tos {rp} MOV tos {sp} ILOAD --sp ;a
-:a sp@ ++sp tos {sp} ISTORE {sp} tos MOV tos tINC ;a
-:a sp! tos {sp} MOV ;a
-( Assembly ops )
+:a op- W {sp} ILOAD tos W SUB W tos MOV --sp ;a
+:a op+ W {sp} ILOAD tos W ADD --sp ;a
+:a opR@ ++sp tos {sp} ISTORE tos {rp} ILOAD ;a
+:a opRDROP --rp ;a
+:a opRP@ ++sp tos {sp} ISTORE {rp} tos MOV ;a
+:a oRP! tos {rp} MOV tos {sp} ILOAD --sp ;a
+:a opSP@ ++sp tos {sp} ISTORE {sp} tos MOV tos tINC ;a
+:a opSP! tos {sp} MOV ;a
 :a opEMIT tos PUT tos {sp} ILOAD --sp ;a
 :a opKEY ++sp tos {sp} ISTORE tos GET ;a
-STR" opPUSH" there 2/ tsymbol
 :a opPUSH ++sp tos {sp} ISTORE tos ip ILOAD ip tINC ;a
 :a opSWAP tos W MOV tos {sp} ILOAD w {sp} ISTORE ;a
 :a opDUP ++sp tos {sp} ISTORE ;a
@@ -126,10 +123,8 @@ W tIF- CONST_NEG1 tos MOV tTHEN ;a
 :a op> W {sp} ILOAD --sp tos W SUB 0 tos MOV
 W tIF+ CONST_NEG1 tos MOV tTHEN ;a
 ( Arithmetic )
-STR" op2*" there 2/ tsymbol
 :a op2* tos tos ADD ;a
 ( See also div2.fs )
-STR" op2/" there 2/ tsymbol there
 :a op2/ CONST_16 W MOV X ZERO
 tBEGIN W tDEC W tWHILE
     X X ADD
@@ -139,13 +134,24 @@ tBEGIN W tDEC W tWHILE
     tos tos ADD
 tREPEAT
 X tos MOV ;a
-tcfa . CR
-( End of primitives )
+:a opDIVMOD W {sp} ILOAD T ZERO
+tBEGIN
+CONST_ONE X MOV
+W tIF- 0 X MOV tTHEN
+X tWHILE T tINC tos W SUB tREPEAT
+tos W ADD T tDEC T tos MOV W {sp} ISTORE ;a
+( End of primitive ops )
 there 2/ CONST_PRIMITIVE t!
+( FORTH words in target )
+( : :t header there CREATE DOCOL , ' LIT , , ' 2/ , ' t, , ' EXIT , ; )
+: :t header ;
+: ;t opEXIT ;
+( Dictionary )
+:t + op+ ;t
 there 2/ {cold} t!
-884 7 + t,
-100 t,
-2109 t,
-208 4 + t,
+opPUSH 2 t,
+opPUSH 1000 t,
++
+opBYE
 HALT
 ( End of image )
