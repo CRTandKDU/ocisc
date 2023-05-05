@@ -74,7 +74,7 @@ vm JMP
 : tcompile-only tlast @ tnfa t@ 32 or tlast @ tnfa t! ;
 : timmediate tlast  @ tnfa t@ 40 or tlast @ tnfa t! ;
 : thead talign there tlast @ t, tlast ! WORD talign tpack talign ;
-: header thead ;
+: header >in thead in> ;
 : :a there CREATE DOCOL , ' LIT , , ' 2/ , ' t, , ' EXIT , ;
 : ;a vm JMP ;
 ( Assembly ops are SUBLEQ code fragments to which )
@@ -143,8 +143,7 @@ tos W ADD T tDEC T tos MOV W {sp} ISTORE ;a
 ( End of primitive ops )
 there 2/ CONST_PRIMITIVE t!
 ( FORTH words in target )
-( : :t header there CREATE DOCOL , ' LIT , , ' 2/ , ' t, , ' EXIT , ; )
-: :t header ;
+: :t header there 2/ CREATE DOCOL , ' LIT , , ' t, , ' EXIT , ;
 : ;t opEXIT ;
 ( Dictionary )
 :t + op+ ;t
