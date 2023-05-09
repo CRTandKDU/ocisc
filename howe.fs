@@ -1,5 +1,6 @@
 ( -*- mode: forth; -*-  )
 ( SUBLEQ image constants )
+VARIABLE voc.root
 2	CONSTANT =cell
 16384	CONSTANT size
 256	CONSTANT =buf
@@ -61,7 +62,7 @@ VARIABLE tlast 0 tlast !
 : tdump 0 BEGIN DUP t@ t. 2+ DUP there - 0>= UNTIL DROP ;
 : tmem. DUP . 9 EMIT ;
 : tmem@. DUP t@ . 9 EMIT ;
-: tmemC@. DUP tc@ DUP . SPACE EMIT 9 EMIT ;
+: tmemC@. DUP tc@ DUP 31 SWAP > IF DUP . THEN SPACE EMIT 9 EMIT ;
 : tmem 0 BEGIN tmem. tmem@. tmemC@. 1+ tmemC@. CR 1+ DUP there - 0>= UNTIL DROP ;
 : trace IF s" out.slq" FOPEN ELSE FCLOSE THEN ;
 : timage 1 trace STR" v2.0 raw" type CR tdump 0 trace ;

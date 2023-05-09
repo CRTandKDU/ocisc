@@ -27,6 +27,7 @@ tVAR bl2 0 bl2 t!
 ( Jump vector )
 tVAR {cold} 0 {cold} t!
 tVAR {last} 0 {last} t!
+tVAR {here} 0 {here} t!
 ( Instruction pointer )
 tVAR ip 0 ip t!
 ( Top of stack )
@@ -39,6 +40,11 @@ tVAR {rp}
 tVAR {sp0}
 tVAR {sp}
 =stack-start =stksz 2* + DUP {sp0} t! {sp} t!
+( FORTH system variables )
+tVAR {base} 10 {base} t!
+tVAR {state} -1 {state} t!
+tVAR {>in} 0 {>in} t!
+tVAR {tib} =buf tALLOC {tib} t!
 : tDEC  CONST_ONE 2/  t, 2/ t, NADDR ;
 : tINC  CONST_NEG1 2/ t, 2/ t, NADDR ;
 : tINV  INVREG ZERO DUP INVREG SUB DUP INVREG SWAP MOV tDEC ;
@@ -46,13 +52,13 @@ tVAR {sp}
 : --sp {sp} tINC ;
 : ++rp {rp} tINC ;
 : --rp {rp} tDEC ;
-( VM entry point @24 )
+( VM entry point )
 tLABEL: start
 start entry 2* t!
 {sp0} {sp} MOV
 {rp0} {rp} MOV
 {cold} ip MOV
-( VM Forth inner interpreter @60 )
+( VM Forth inner interpreter )
 tLABEL: vm
 ip W MOV
 ip tINC
@@ -105,7 +111,7 @@ vm JMP
 :a opFROMR ++sp tos {sp} ISTORE tos {rp} ILOAD --rp ;a
 :a opEXIT ip {rp} ILOAD ;a
 ( BRANCH group )
-:a opNEXT W {rp} ILOAD
+:a tNEXT W {rp} ILOAD
 W tIF W tDEC W {rp} ISTORE T ip ILOAD T ip MOV vm JMP
     tTHEN ip TINC --rp ;a
 :a opJUMP ip ip ILOAD ;a
@@ -123,6 +129,27 @@ W tIF- CONST_NEG1 tos MOV tTHEN ;a
 :a op> W {sp} ILOAD --sp tos W SUB 0 tos MOV
 W tIF+ CONST_NEG1 tos MOV tTHEN ;a
 ( Arithmetic )
+:a lsb
+tos tos ADD tos tos ADD tos tos ADD
+tos tos ADD tos tos ADD tos tos ADD
+tos tos ADD tos tos ADD tos tos ADD
+tos tos ADD tos tos ADD tos tos ADD
+tos tos ADD tos tos ADD
+tos W MOV 0 tos MOV W tIF CONST_NEG1 tos MOV tTHEN ;a
+:a rshift
+CONST_16 W MOV
+tos W SUB
+tos {sp} ILOAD --sp
+X ZERO
+tBEGIN W tWHILE
+X X ADD
+tos bt MOV 0 bl1 MOV
+bt tIF- CONST_NEG1 bl1 MOV tTHEN bt tINC bt tIF- CONST_NEG1 bl1 MOV tTHEN
+bl1 tIF X tINC tTHEN
+tos tos ADD
+W tDEC
+tREPEAT
+X tos MOV ;a
 :a op2* tos tos ADD ;a
 ( See also div2.fs )
 :a op2/ CONST_16 W MOV X ZERO
@@ -142,15 +169,28 @@ X tWHILE T tINC tos W SUB tREPEAT
 tos W ADD T tDEC T tos MOV W {sp} ISTORE ;a
 ( End of primitive ops )
 there 2/ CONST_PRIMITIVE t!
+there {here} t!
 ( FORTH words in target )
 : :t header there 2/ CREATE DOCOL , ' LIT , , ' t, , ' EXIT , ;
 : ;t opEXIT ;
-( Dictionary )
-:t + op+ ;t
+: opLIT opPUSH t, ;
+: opMARK opJUMP there 0 t, ;
+: opIF opJUMPZ there 0 t, ;
+: opTHEN there 2/ SWAP t! ;
+: opELSE opMARK SWAP opTHEN ;
+: opBEGIN talign there ;
+: opUNTIL talign opJUMPZ 2/ t, ;
+: opAGAIN talign opJUMP 2/ t, ;
+: opWHILE opIF ;
+: opREPEAT SWAP opAGAIN opTHEN ;
+: opFOR opTOR opBEGIN ;
+: opNEXT talign tNEXT 2/ t, ;
 there 2/ {cold} t!
-opPUSH 2 t,
-opPUSH 1000 t,
-+
+0 opLIT opIF
+72 opLIT opEMIT
+opELSE 101 opLIT opEMIT
+opTHEN
+101 opLIT opEMIT
 opBYE
 HALT
-( End of image )
+( End of image.fs )
