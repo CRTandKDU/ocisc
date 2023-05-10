@@ -20,6 +20,14 @@ tVAR INVREG 0 INVREG t!
 tVAR W 0 W t!
 tVAR X 0 X t!
 tVAR T 0 T t!
+tVAR R0 0 R0 t!
+tVAR R1 0 R1 t!
+tVAR R2 0 R2 t!
+tVAR R3 0 R3 t!
+tVAR R4 0 R4 t!
+tVAR R5 0 R5 t!
+tVAR R6 0 R6 t!
+tVAR R7 0 R7 t!
 tVAR H 0 H t!
 tVAR bt 0 bt t!
 tVAR bl1 0 bl1 t!
@@ -52,6 +60,8 @@ tVAR {tib} =buf tALLOC {tib} t!
 : --sp {sp} tINC ;
 : ++rp {rp} tINC ;
 : --rp {rp} tDEC ;
+: NG1! DUP ZERO tDEC ;
+: ONE! DUP ZERO tINC ;
 ( VM entry point )
 tLABEL: start
 start entry 2* t!
@@ -77,9 +87,9 @@ vm JMP
 ( Header for words Building )
 : count DUP 1+ SWAP C@ ;
 : tpack talign DUP tc, 0 DO count tc, LOOP DROP ;
-: tcompile-only tlast @ tnfa t@ 32 or tlast @ tnfa t! ;
-: timmediate tlast  @ tnfa t@ 40 or tlast @ tnfa t! ;
-: thead talign there tlast @ t, tlast ! WORD talign tpack talign ;
+: tcompile-only {last} t@ tnfa t@ 32 or {last} t@ tnfa t! ;
+: timmediate {last}  t@ tnfa t@ 64 or {last} t@ tnfa t! ;
+: thead talign there {last} t@ t, {last} t! WORD talign tpack talign ;
 : header >in thead in> ;
 : :a there CREATE DOCOL , ' LIT , , ' 2/ , ' t, , ' EXIT , ;
 : ;a vm JMP ;
@@ -167,13 +177,36 @@ CONST_ONE X MOV
 W tIF- 0 X MOV tTHEN
 X tWHILE T tINC tos W SUB tREPEAT
 tos W ADD T tDEC T tos MOV W {sp} ISTORE ;a
+:a opMUX
+CONST_16 r0 MOV
+r1 ZERO
+r3 {sp} iLOAD --sp
+r4 {sp} iLOAD --sp
+tBEGIN r0 tWHILE
+r1 r1 ADD
+tos r5 MOV r6 ZERO
+r5 tIF- r6 NG1! tTHEN r5 tINC r5 tIF- r6 NG1! tTHEN
+r6 tIF- 
+r4 r7 MOV r5 ZERO
+r7 tIF- r5 ONE! tTHEN r7 tINC r7 tIF- r5 ONE! tTHEN
+r5 r1 ADD
+tTHEN
+r6 tINC
+r6 tIF  
+r3 r7 MOV r5 ZERO
+r7 tIF- r5 ONE! tTHEN r7 tINC r7 tIF- r5 ONE! tTHEN
+r5 r1 ADD
+tTHEN
+tos tos ADD
+r3 r3 ADD
+r4 r4 ADD
+r0 tDEC
+tREPEAT
+r1 tos MOV ;a
 ( End of primitive ops )
-there 2/ CONST_PRIMITIVE t!
-there {here} t!
-( FORTH words in target )
 : :t header there 2/ CREATE DOCOL , ' LIT , , ' t, , ' EXIT , ;
 : ;t opEXIT ;
-: opLIT opPUSH t, ;
+: lit opPUSH t, ;
 : opMARK opJUMP there 0 t, ;
 : opIF opJUMPZ there 0 t, ;
 : opTHEN there 2/ SWAP t! ;
@@ -185,12 +218,5 @@ there {here} t!
 : opREPEAT SWAP opAGAIN opTHEN ;
 : opFOR opTOR opBEGIN ;
 : opNEXT talign tNEXT 2/ t, ;
-there 2/ {cold} t!
-0 opLIT opIF
-72 opLIT opEMIT
-opELSE 101 opLIT opEMIT
-opTHEN
-101 opLIT opEMIT
-opBYE
-HALT
+there post2/ CONST_PRIMITIVE t!
 ( End of image.fs )

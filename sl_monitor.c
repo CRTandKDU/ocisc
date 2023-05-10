@@ -7,20 +7,20 @@
 #include <errno.h>
 #include "sl_monitor.h"
 
-#define reg_W 12
-#define reg_X 13
-#define reg_T 14
-#define reg_H 15
+#define reg_W 13
+#define reg_X reg_W+1
+#define reg_T reg_W+2
+#define reg_H reg_W+3
 
-#define reg_COLD 16
-#define reg_LAST 17
+#define reg_COLD 28
+#define reg_LAST reg_COLD+1
 
-#define reg_IP	18
-#define reg_TOS 19
-#define reg_RP0 20
-#define reg_RP	21
-#define reg_SP0 22
-#define reg_SP	23
+#define reg_IP	31
+#define reg_TOS reg_IP+1
+#define reg_RP0 reg_IP+2
+#define reg_RP	reg_IP+3
+#define reg_SP0 reg_IP+4
+#define reg_SP	reg_IP+5
 
 void mon_state( short *m ){
   printf( "IP: %6d\tTOS: %6d\n", m[ reg_IP ], m[ reg_TOS ] );

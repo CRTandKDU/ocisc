@@ -14,6 +14,8 @@ VARIABLE VERBOSITY 0 VERBOSITY !
 size CELLS ALLOC CONSTANT tflash
 VARIABLE tdp 0 tdp !
 VARIABLE tlast 0 tlast !
+( Words to preserve post-override )
+: post2/ 2/ ;
 ( Target building words )
 : tcell 2 ;
 : there tdp @ ;

@@ -104,6 +104,9 @@ int main( int argc, char **argv ){
     ( m[b] -= m[a] ) <= 0 ? p = c : 0;
   }
 #endif
-  if( 1 == verbose ) dump_mem( m );
+  if( 1 == verbose ){
+    dump_mem( m );
+    mon_state( m );
+  }
   return 0;
 }
