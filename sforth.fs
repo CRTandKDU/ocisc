@@ -5,11 +5,14 @@
 :t drop opDROP ;t
 :t swap opSWAP ;t
 :t dup opDUP ;t
+:t ?dup opDUP opIF opDUP opTHEN ;t
 :t over opOVER ;t
 :t rot opTOR opSWAP opFROMR opSWAP ;t
 :t -rot rot rot ;t
 :t 2drop opDROP opDROP ;t
 :t 2dup opOVER opOVER ;t
+:t nip opSWAP opDROP ;t
+:t tuck opSWAP opOVER ;t
 ( ARITHMETIC )
 :t 1+ op1+ ;t
 :t 1- op1- ;t
@@ -19,6 +22,7 @@
 :t /mod opDIVMOD ;t
 :t 2/ op2/ ;t
 :t 2* op2* ;t
+:t abs opDUP op0< opIF 0 lit opSWAP op- opTHEN ;t 
 ( COMPARISON )
 :t = op- op0= ;t
 :t <> = op0= ;t
@@ -38,9 +42,15 @@
 ( FORTH CODE WORDS )
 :t ! op2/ [!] ;t
 :t @ op2/ [@] ;t
+( OUTPUT )
+:t cr 10 lit opEMIT ;t
+:t space 32 lit opEMIT ;t
+( NUMERIC OUTPUT )
+:t digit 9 lit opOVER op< opIF 7 lit op+ opTHEN 48 lit op+ ;t
+:t [.] abs {base} lit @ opDIVMOD ?dup opIF [.] opTHEN digit opEMIT ;t
 ( COLD is here )
 there post2/ {cold} t!
-2 lit 2 lit +
+{last} lit @ op1+ op1+ @
 opBYE
 HALT
-
+timage bye

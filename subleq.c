@@ -94,7 +94,7 @@ int main( int argc, char **argv ){
     a = m[p++]; b=m[p++]; c=m[p++];
     if( debug ) mon_step( m, p-3, a, b, c );
     a == -1 ? m[b] = getchar() :
-      b == -1  ? putchar( m[a] ) :
+      b == -1  ? putchar( (char)m[a] ) :
       ( m[b] -= m[a] ) <= 0 ? p = c :
       0;
   }

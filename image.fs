@@ -119,7 +119,7 @@ vm JMP
 :a opDROP tos {sp} ILOAD --sp ;a
 :a opTOR ++rp tos {rp} ISTORE tos {sp} ILOAD --sp ;a
 :a opFROMR ++sp tos {sp} ISTORE tos {rp} ILOAD --rp ;a
-:a opEXIT ip {rp} ILOAD ;a
+:a opEXIT ip {rp} ILOAD --rp ;a
 ( BRANCH group )
 :a tNEXT W {rp} ILOAD
 W tIF W tDEC W {rp} ISTORE T ip ILOAD T ip MOV vm JMP
@@ -171,12 +171,23 @@ tBEGIN W tDEC W tWHILE
     tos tos ADD
 tREPEAT
 X tos MOV ;a
-:a opDIVMOD W {sp} ILOAD T ZERO
+( OPDIVMOD )
+:a opDIVMOD
+tos R0 MOV
+W {sp} ILOAD
+T ZERO
 tBEGIN
 CONST_ONE X MOV
 W tIF- 0 X MOV tTHEN
 X tWHILE T tINC tos W SUB tREPEAT
-tos W ADD T tDEC T tos MOV W {sp} ISTORE ;a
+tos W ADD
+T tDEC
+T tos MOV
+W R1 MOV W tIF- R1 R0 ADD tTHEN
+R1 {sp} ISTORE
+R0 ZERO R1 ZERO ;a
+( OPMUX )
+str" opMUX " tsymbol
 :a opMUX
 CONST_16 r0 MOV
 r1 ZERO
@@ -185,24 +196,29 @@ r4 {sp} iLOAD --sp
 tBEGIN r0 tWHILE
 r1 r1 ADD
 tos r5 MOV r6 ZERO
-r5 tIF- r6 NG1! tTHEN r5 tINC r5 tIF- r6 NG1! tTHEN
+r5 tIF- CONST_NEG1 r6 MOV tTHEN
+r5 tINC r5 tIF- CONST_NEG1 r6 MOV tTHEN
 r6 tIF- 
 r4 r7 MOV r5 ZERO
-r7 tIF- r5 ONE! tTHEN r7 tINC r7 tIF- r5 ONE! tTHEN
-r5 r1 ADD
+r7 tIF- CONST_ONE r5 MOV tTHEN
+r7 tINC r7 tIF- CONST_ONE r5 MOV tTHEN
+r1 r5 ADD
 tTHEN
 r6 tINC
 r6 tIF  
 r3 r7 MOV r5 ZERO
-r7 tIF- r5 ONE! tTHEN r7 tINC r7 tIF- r5 ONE! tTHEN
-r5 r1 ADD
+r7 tIF- CONST_ONE r5 MOV tTHEN
+r7 tINC r7 tIF- CONST_ONE r5 MOV tTHEN
+r1 r5 ADD
 tTHEN
 tos tos ADD
 r3 r3 ADD
 r4 r4 ADD
 r0 tDEC
 tREPEAT
-r1 tos MOV ;a
+R1 tos MOV ;a
+str" const_primitive" tsymbol
+there post2/ CONST_PRIMITIVE t!
 ( End of primitive ops )
 : :t header there 2/ CREATE DOCOL , ' LIT , , ' t, , ' EXIT , ;
 : ;t opEXIT ;
@@ -218,5 +234,4 @@ r1 tos MOV ;a
 : opREPEAT SWAP opAGAIN opTHEN ;
 : opFOR opTOR opBEGIN ;
 : opNEXT talign tNEXT 2/ t, ;
-there post2/ CONST_PRIMITIVE t!
 ( End of image.fs )
