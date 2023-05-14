@@ -221,7 +221,7 @@ str" const_primitive" tsymbol
 there post2/ CONST_PRIMITIVE t!
 ( End of primitive ops )
 : :t header there 2/ CREATE DOCOL , ' LIT , , ' t, , ' EXIT , ;
-: ;t opEXIT ;
+: ;t opEXIT there {here} t! ;
 : lit opPUSH t, ;
 : opMARK opJUMP there 0 t, ;
 : opIF opJUMPZ there 0 t, ;

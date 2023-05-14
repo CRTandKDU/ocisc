@@ -24,6 +24,7 @@ VARIABLE tlast 0 tlast !
 : t, there t! tcell tdp +! ; : tc, there tc! 1 tdp +! ;
 : talign there 1 AND tdp +! ;
 : ts" there BEGIN KEY DUP 34 <> WHILE OVER tc! 1+ REPEAT DROP DUP 1 AND + tdp !  ;
+: tstr" talign there 0 tc, there ts" there SWAP - SWAP tc! ;
 ( Tentative SUBLEQ assembler instruction set )
 : Z 0 t, ;
 : NADDR there 2/ 1+ t, ;
@@ -64,7 +65,8 @@ VARIABLE tlast 0 tlast !
 : tdump 0 BEGIN DUP t@ t. 2+ DUP there - 0>= UNTIL DROP ;
 : tmem. DUP . 9 EMIT ;
 : tmem@. DUP t@ . 9 EMIT ;
-: tmemC@. DUP tc@ DUP 31 SWAP > IF DUP . THEN SPACE EMIT 9 EMIT ;
+: tascii DUP 31 > IF DUP 128 < IF DUP EMIT THEN THEN DROP ; 
+: tmemC@. DUP tc@ DUP . 32 EMIT tascii 9 EMIT ;
 : tmem 0 BEGIN tmem. tmem@. tmemC@. 1+ tmemC@. CR 1+ DUP there - 0>= UNTIL DROP ;
 : trace IF s" out.slq" FOPEN ELSE FCLOSE THEN ;
 : timage 1 trace STR" v2.0 raw" type CR tdump 0 trace ;
