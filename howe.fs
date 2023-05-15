@@ -23,8 +23,10 @@ VARIABLE tlast 0 tlast !
 : t! tflash + !  ; : t@ tflash + @ ;
 : t, there t! tcell tdp +! ; : tc, there tc! 1 tdp +! ;
 : talign there 1 AND tdp +! ;
-: ts" there BEGIN KEY DUP 34 <> WHILE OVER tc! 1+ REPEAT DROP DUP 1 AND + tdp !  ;
-: tstr" talign there 0 tc, there ts" there SWAP - SWAP tc! ;
+( Store a counted string [len chars] there )
+: ts" talign there DUP 0 tc, there DUP
+BEGIN KEY DUP 34 <> WHILE OVER tc! 1+ REPEAT DROP
+2DUP OVER - SWAP DROP ROT ROT DUP 1 AND + tdp ! DROP SWAP tc! ;
 ( Tentative SUBLEQ assembler instruction set )
 : Z 0 t, ;
 : NADDR there 2/ 1+ t, ;

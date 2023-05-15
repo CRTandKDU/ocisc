@@ -67,14 +67,17 @@ opTOR opOVER xor opFROMR and xor opSWAP ! ;t
 :t ] -1 lit {state} lit ! ;t
 :t [ 0 lit {state} lit ! ;t timmediate
 ( STRINGS )
-:t count opDUP op1+ opSWAP c@ ;t
-:t type opBEGIN opDUP @ opWHILE opSWAP count opEMIT opSWAP op1- opREPEAT
-2drop ;t
-talign tLABEL: foo
-tstr" Hello World"
+:t type opDUP c@ 31 lit and opBEGIN opDUP opWHILE opSWAP op1+ opDUP c@ opEMIT
+opSWAP op1- opREPEAT opDROP opDROP ;t
+( Some IO )
+talign tLABEL: $banner ts" SUBTLE FORTH - v1.0"
+:t banner $banner lit op2* type 10 lit opEMIT ;t
+:t words {last} lit @ opBEGIN opDUP opWHILE
+opDUP op1+ op1+ type 32 lit opEMIT @ opREPEAT opDROP ;t
 ( COLD is here )
 there post2/ {cold} t!
-foo lit
+banner
+words
 opBYE
 HALT
 timage
