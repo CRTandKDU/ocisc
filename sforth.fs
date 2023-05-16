@@ -71,13 +71,35 @@ opTOR opOVER xor opFROMR and xor opSWAP ! ;t
 opSWAP op1- opREPEAT opDROP opDROP ;t
 ( Some IO )
 talign tLABEL: $banner ts" SUBTLE FORTH - v1.0"
-:t banner $banner lit op2* type 10 lit opEMIT ;t
+talign tLABEL: $prompt ts" OK> "
+:t banner $banner lit op2* type cr ;t
+:t prompt $prompt lit op2* type ;t
 :t words {last} lit @ opBEGIN opDUP opWHILE
 opDUP op1+ op1+ type 32 lit opEMIT @ opREPEAT opDROP ;t
+( INPUT bot eot cur c OUTPUT bot eot cur )
+:t tap opDUP opEMIT opOVER c! op1+ ;t
+:t ktap opDUP opDUP 13 lit <> opTOR
+10 lit <> opFROMR and opIF
+opDUP 8 lit <> opTOR 127 lit <> opFROMR and opIF
+32 lit tap opEXIT
+opTHEN opTOR opOVER opR@ op< opDUP opIF
+8 lit opDUP opEMIT 32 lit opEMIT opEMIT
+opTHEN opFROMR + opEXIT
+opTHEN opDROP nip opDUP ;t
+( INPUT a line to {tib} )
+:t accept {tib} lit @ =buf lit
+opOVER + OPOVER opBEGIN
+2dup <> opWHILE
+opKEY opDUP 32 lit op< opIF
+ktap opELSE opDUP 127 lit op< opIF
+tap opELSE ktap
+opTHEN opTHEN 
+opREPEAT opDROP opOVER op- ;t
 ( COLD is here )
 there post2/ {cold} t!
 banner
-words
+prompt
+accept
 opBYE
 HALT
 timage
