@@ -51,7 +51,9 @@ tVAR {sp}
 ( FORTH system variables )
 tVAR {base} 10 {base} t!
 tVAR {state} -1 {state} t!
+str" >in " tsymbol
 tVAR {>in} 0 {>in} t!
+str" tib " tsymbol
 tVAR {tib} =buf tALLOC {tib} t!
 : tDEC  CONST_ONE 2/  t, 2/ t, NADDR ;
 : tINC  CONST_NEG1 2/ t, 2/ t, NADDR ;
@@ -62,6 +64,7 @@ tVAR {tib} =buf tALLOC {tib} t!
 : --rp {rp} tDEC ;
 : NG1! DUP ZERO tDEC ;
 : ONE! DUP ZERO tINC ;
+tVAR CONST_32 32 CONST_32 t!
 ( VM entry point )
 tLABEL: start
 start entry 2* t!
@@ -217,6 +220,8 @@ r4 r4 ADD
 r0 tDEC
 tREPEAT
 R1 tos MOV ;a
+( Terminal buffer handling )
+( Barrier )
 str" const_primitive" tsymbol
 there post2/ CONST_PRIMITIVE t!
 ( End of primitive ops )

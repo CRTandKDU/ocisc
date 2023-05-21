@@ -88,18 +88,38 @@ opTHEN opFROMR + opEXIT
 opTHEN opDROP nip opDUP ;t
 ( INPUT a line to {tib} )
 :t accept {tib} lit @ =buf lit
-opOVER + OPOVER opBEGIN
+opOVER + opOVER opBEGIN
 2dup <> opWHILE
 opKEY opDUP 32 lit op< opIF
 ktap opELSE opDUP 127 lit op< opIF
 tap opELSE ktap
 opTHEN opTHEN 
-opREPEAT opDROP opOVER op- ;t
+opREPEAT opDROP
+opDUP 0 lit opSWAP c!
+opOVER op- nip
+0 lit {>in} lit ! ;t
+:t word opBEGIN
+{tib} lit @ {>in} lit @ op+ c@
+op0= opIF {>in} lit @ opDUP opEXIT opTHEN
+{tib} lit @ {>in} lit @ op+ c@ 32 lit op-
+0<> opIF
+{>in} lit @
+opBEGIN
+{tib} lit @ {>in} lit @ op+ c@
+op0= opIF {>in} lit @ opEXIT opTHEN
+{tib} lit @ {>in} lit @ op+ c@ 32 lit op-
+0= opIF {>in} lit @ opEXIT opTHEN
+{>in} lit opDUP @ op1+ opSWAP !
+opAGAIN
+opTHEN
+{>in} lit opDUP @ op1+ opSWAP !
+opAGAIN ;t
 ( COLD is here )
 there post2/ {cold} t!
 banner
 prompt
 accept
+word
 opBYE
 HALT
 timage
