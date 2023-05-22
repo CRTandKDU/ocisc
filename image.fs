@@ -65,6 +65,7 @@ tVAR {tib} =buf tALLOC {tib} t!
 : NG1! DUP ZERO tDEC ;
 : ONE! DUP ZERO tINC ;
 tVAR CONST_32 32 CONST_32 t!
+tVAR CONST_10 10 CONST_10 t!
 ( VM entry point )
 tLABEL: start
 start entry 2* t!
@@ -125,8 +126,8 @@ vm JMP
 :a opEXIT ip {rp} ILOAD --rp ;a
 ( BRANCH group )
 :a tNEXT W {rp} ILOAD
-W tIF W tDEC W {rp} ISTORE T ip ILOAD T ip MOV vm JMP
-    tTHEN ip TINC --rp ;a
+W tIF W tDEC W {rp} ISTORE T ip ILOAD T ip MOV ;a
+tTHEN ip tINC --rp ;a
 :a opJUMP ip ip ILOAD ;a
 :a opJUMPZ tos W MOV 0 T MOV
 W tIF CONST_NEG1 T MOV tTHEN tos {sp} ILOAD --sp
@@ -220,7 +221,24 @@ r4 r4 ADD
 r0 tDEC
 tREPEAT
 R1 tos MOV ;a
-( Terminal buffer handling )
+( Mult special cases x10, x16 )
+:a op16x
+tos r1 MOV r1 r1 ADD r1 r1 ADD r1 r1 ADD r1 r1 ADD
+r1 tos MOV ;a
+:a op10x
+tos r1 MOV r1 r1 ADD r1 r2 MOV r1 r1 ADD r1 r1 ADD
+r1 r2 ADD r1 tos MOV ;a
+( Terminal buffer handling and chars )
+:a notfigure?
+CONST_32 r0 MOV r0 CONST_16 ADD tos r1 MOV
+r0 r1 SUB r1 tIF- CONST_NEG1 tos MOV ;a
+tTHEN CONST_10 r0 MOV
+r0 r1 SUB r1 tIF- r1 r0 ADD r1 TOS MOV ;a
+tTHEN CONST_TWO r0 MOV r0 CONST_TWO ADD r0 CONST_TWO ADD
+r0 r2 MOV r0 CONST_ONE ADD
+r0 r1 SUB r1 tIF- CONST_NEG1 tos MOV ;a
+tTHEN r2 r1 SUB r1 tIF- r1 r2 ADD r1 CONST_10 ADD  r1 tos MOV ;a
+tTHEN CONST_NEG1 tos MOV ;a
 ( Barrier )
 str" const_primitive" tsymbol
 there post2/ CONST_PRIMITIVE t!

@@ -32,6 +32,7 @@
 :t < op< ;t
 :t >= op< op0= ;t
 :t <= op> op0= ;t
+:t 0= op0= ;t
 :t 0<> op0= op0= ;t
 :t 0> op0> ;t
 :t 0< op0< ;t
@@ -98,28 +99,40 @@ opREPEAT opDROP
 opDUP 0 lit opSWAP c!
 opOVER op- nip
 0 lit {>in} lit ! ;t
+( Parse a single word ending in 32 or 0 )
+( Return beg last+1 on stack )
 :t word opBEGIN
 {tib} lit @ {>in} lit @ op+ c@
 op0= opIF {>in} lit @ opDUP opEXIT opTHEN
 {tib} lit @ {>in} lit @ op+ c@ 32 lit op-
 0<> opIF
-{>in} lit @
-opBEGIN
-{tib} lit @ {>in} lit @ op+ c@
-op0= opIF {>in} lit @ opEXIT opTHEN
-{tib} lit @ {>in} lit @ op+ c@ 32 lit op-
-0= opIF {>in} lit @ opEXIT opTHEN
-{>in} lit opDUP @ op1+ opSWAP !
-opAGAIN
+    {>in} lit @
+    opBEGIN
+    {tib} lit @ {>in} lit @ op+ c@
+    op0= opIF {>in} lit @ opEXIT opTHEN
+    {tib} lit @ {>in} lit @ op+ c@ 32 lit op-
+    op0= opIF {>in} lit @ opEXIT opTHEN
+    {>in} lit opDUP @ op1+ opSWAP !
+    opAGAIN
 opTHEN
 {>in} lit opDUP @ op1+ opSWAP !
 opAGAIN ;t
+( Parse a number <last+1> <beg> <straddr> )
+( Hence WORD SWAP <test> NUMBER )
+:t number opOVER op- op1- opSWAP opOVER op+ 0 lit rot rot opSWAP
+opFOR
+opDUP {tib} lit @ op+ opR@ op- c@
+opEMIT 10 lit opEMIT
+opNEXT
+;t
 ( COLD is here )
 there post2/ {cold} t!
 banner
 prompt
 accept
 word
+10 lit opEMIT
+number
 opBYE
 HALT
-timage
+timage bye
