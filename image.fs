@@ -237,7 +237,7 @@ r0 r1 SUB r1 tIF- r1 r0 ADD r1 TOS MOV ;a
 tTHEN CONST_TWO r0 MOV r0 CONST_TWO ADD r0 CONST_TWO ADD
 r0 r2 MOV r0 CONST_ONE ADD
 r0 r1 SUB r1 tIF- CONST_NEG1 tos MOV ;a
-tTHEN r2 r1 SUB r1 tIF- r1 r2 ADD r1 CONST_10 ADD  r1 tos MOV ;a
+tTHEN r2 r1 SUB r1 tIF- r1 r2 ADD r1 CONST_10 ADD r1 tos MOV ;a
 tTHEN CONST_NEG1 tos MOV ;a
 ( Barrier )
 str" const_primitive" tsymbol

@@ -64,6 +64,7 @@ opTOR opOVER xor opFROMR and xor opSWAP ! ;t
 ( NUMERIC OUTPUT )
 :t digit 9 lit opOVER op< opIF 7 lit op+ opTHEN 48 lit op+ ;t
 :t [.] abs {base} lit @ opDIVMOD ?dup opIF [.] opTHEN digit opEMIT ;t
+:t . opDUP op0< opIF 45 lit opEMIT opTHEN [.] ;t
 ( STATE WORDS )
 :t ] -1 lit {state} lit ! ;t
 :t [ 0 lit {state} lit ! ;t timmediate
@@ -117,14 +118,25 @@ op0= opIF {>in} lit @ opDUP opEXIT opTHEN
 opTHEN
 {>in} lit opDUP @ op1+ opSWAP !
 opAGAIN ;t
-( Parse a number <last+1> <beg> <straddr> )
-( Hence WORD SWAP <test> NUMBER )
-:t number opOVER op- op1- opSWAP opOVER op+ 0 lit rot rot opSWAP
+( Parse a number: beg lst+1 -- sgn num rest )
+( where sgn is 0 for positive, -1 for negative )
+( num is absolute value )
+( rest is the number of unparsed chars )
+:t number? opOVER op- op1- opSWAP opOVER op+ 0 lit rot rot opSWAP
+opTOR opDUP {tib} lit @ op+ opR@ op- c@ 45 lit =
+opIF -1 lit rot rot op1+
+opELSE 0 lit rot rot
+opTHEN opFROMR
 opFOR
-opDUP {tib} lit @ op+ opR@ op- c@
-opEMIT 10 lit opEMIT
-opNEXT
-;t
+    opDUP {tib} lit @ op+ opR@ op- c@
+    notfigure? opDUP -1 lit = opIF opDROP opDROP opFROMR op1+ opEXIT
+    opTHEN rot {base} lit @ 10 lit = opIF op10x opELSE op16x opTHEN op+
+    opSWAP
+opNEXT opDROP 0 lit ;t
+( Signed parse beg lst+1 -- signednum rest )
+:t number number? opTOR opSWAP opDUP op0= opIF
+opELSE opSWAP 0 lit opSWAP op- opSWAP opTHEN
+opFROMR op+ ;t
 ( COLD is here )
 there post2/ {cold} t!
 banner
@@ -133,6 +145,7 @@ accept
 word
 10 lit opEMIT
 number
+opDROP .
 opBYE
 HALT
 timage bye
