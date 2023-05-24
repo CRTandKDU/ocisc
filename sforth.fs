@@ -3,6 +3,7 @@
 ( Target FORTH system baed on Jones' FORTH )
 ( STACK )
 :t drop opDROP ;t
+str" swap " tsymbol
 :t swap opSWAP ;t
 :t dup opDUP ;t
 :t ?dup opDUP opIF opDUP opTHEN ;t
@@ -74,12 +75,15 @@ opSWAP op1- opREPEAT opDROP opDROP ;t
 ( Some IO )
 talign tLABEL: $banner ts" SUBTLE FORTH - v1.0"
 talign tLABEL: $prompt ts" OK> "
+talign tLABEL: $SNerror ts" ?SN ERROR"
 :t banner $banner lit op2* type cr ;t
 :t prompt $prompt lit op2* type ;t
 :t words {last} lit @ opBEGIN opDUP opWHILE
 opDUP op1+ op1+ type 32 lit opEMIT @ opREPEAT opDROP ;t
 ( INPUT bot eot cur c OUTPUT bot eot cur )
-:t tap opDUP opEMIT opOVER c! op1+ ;t
+:t tap {options} lit @ 1 lit and 0<>
+opIF opDUP opEMIT
+opTHEN opOVER c! op1+ ;t
 :t ktap opDUP opDUP 13 lit <> opTOR
 10 lit <> opFROMR and opIF
 opDUP 8 lit <> opTOR 127 lit <> opFROMR and opIF
@@ -137,15 +141,50 @@ opNEXT opDROP 0 lit ;t
 :t number number? opTOR opSWAP opDUP op0= opIF
 opELSE opSWAP 0 lit opSWAP op- opSWAP opTHEN
 opFROMR op+ ;t
+( Dictionary lookup: beg lst+1 )
+( Compare word to tib: tib+beg len addr -- tib+beg len addr [0|-1] )
+:t compare
+( 32 lit opEMIT opDUP opDUP [.] 32 lit opEMIT op1+ op1+ type )
+opOVER opFOR
+    opOVER opR@ op-
+    2dup op+ op1+ op1+ op1+ c@ opTOR ( R@ is char in word )
+    opTOR rot opDUP opFROMR + c@ ( char from tib )
+    opFROMR op- 0<> opIF -rot 0 lit opFROMR opDROP opEXIT
+    opTHEN -rot
+opNEXT
+-1 lit ;t
+( Find word in dictionary beg lst+1 -- tib+beg len [addr|0] )
+:t find opOVER op- op1- opSWAP {tib} lit @ op+ opSWAP
+{last} lit @ opBEGIN opDUP opWHILE
+opDUP op1+ op1+ c@ 31 lit and opTOR opOVER op1+ opFROMR = opIF
+compare 0<> opIF opEXIT opTHEN
+opTHEN @
+opREPEAT ;t
+( Outer interpreter: beg lst+1 --   )
+:t cfa op1+ op1+ opDUP c@ 31 lit and +
+opDUP 1 lit and 0= opIF op1+ opTHEN op1+ ;t
+:t interpret 2dup find opDUP 0= opIF
+    opDROP opDROP opDROP number 0<> opIF
+	$SNerror lit op2* type cr ( Then what? )
+    opTHEN ( a number )
+        opEXIT
+        ( Do something when compiling )
+opTHEN cfa op2/ opTOR 2drop 2drop
+( Do something when compiling )
+;t
+( Misc )
+:t bye opBYE ;t
+:t quit opBEGIN
+prompt
+accept 0<> opIF
+opBEGIN word 2dup op- 0<> opWHILE
+interpret
+opREPEAT 2drop
+opTHEN opAGAIN ;t
 ( COLD is here )
 there post2/ {cold} t!
 banner
-prompt
-accept
-word
-10 lit opEMIT
-number
-opDROP .
+quit
 opBYE
 HALT
-timage bye
+timage postbye

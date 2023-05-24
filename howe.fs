@@ -16,6 +16,7 @@ VARIABLE tdp 0 tdp !
 VARIABLE tlast 0 tlast !
 ( Words to preserve post-override )
 : post2/ 2/ ;
+: postbye bye ;
 ( Target building words )
 : tcell 2 ;
 : there tdp @ ;
