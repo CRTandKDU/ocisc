@@ -5,7 +5,7 @@
 tLABEL: entry
 -1 t,
 ( Options byte @3 )
-tVAR {options} 0 {options} t!
+tVAR {options} 2 {options} t!
 ( Separate system from user vocabulary @4 )
 tVAR CONST_PRIMITIVE 0 CONST_PRIMITIVE t!
 ( Some constants @5 )
@@ -35,6 +35,7 @@ tVAR bl2 0 bl2 t!
 ( Jump vector )
 tVAR {cold} 0 {cold} t!
 tVAR {last} 0 {last} t!
+str" {here} " tsymbol
 tVAR {here} 0 {here} t!
 ( Instruction pointer )
 tVAR ip 0 ip t!
@@ -239,6 +240,9 @@ r0 r2 MOV r0 CONST_ONE ADD
 r0 r1 SUB r1 tIF- CONST_NEG1 tos MOV ;a
 tTHEN r2 r1 SUB r1 tIF- r1 r2 ADD r1 CONST_10 ADD r1 tos MOV ;a
 tTHEN CONST_NEG1 tos MOV ;a
+( Stack internals )
+:a tDEPTH {sp0} r0 MOV {sp} r1 MOV r1 r0 SUB CONST_NEG1 r0 SUB
+++sp tos {sp} ISTORE r0 tos MOV ;a
 ( Barrier )
 str" const_primitive" tsymbol
 there post2/ CONST_PRIMITIVE t!

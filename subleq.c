@@ -9,15 +9,17 @@
 
 #define NEG_USED_FOR_IO
 #define MAX_SOURCE_LINE_LENGTH 64
+#define REG_HERE 30
 
 void dump_mem( short *m ){
-  short *i;
-  for( i=m; ; i++ ){
-    printf( "%d\n", *i );
-    if( (i-m)>2 ){
-      if( 0 == *(i-2) && 0 == *(i-1) && -1 == *i ) break;
-    }
-  }
+  short *i, last= m[REG_HERE] >> 1;
+  /* for( i=m; ; i++ ){ */
+  /*   printf( "%d\n", *i ); */
+  /*   if( (i-m)>2 ){ */
+  /*     if( 0 == *(i-2) && 0 == *(i-1) && -1 == *i ) break; */
+  /*   } */
+  /* } */
+  for( i=m; i<=m+last; i++ ) printf( "%d\n", *i );
 }
 
 int read_file( char *fn, short *m, short base ){

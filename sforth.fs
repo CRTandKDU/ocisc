@@ -55,10 +55,28 @@ str" swap " tsymbol
 :t c! opSWAP 255 lit and opDUP 8 lit lshift or opSWAP
 tuck opDUP @ opSWAP lsb op0= 255 lit xor
 opTOR opOVER xor opFROMR and xor opSWAP ! ;t
+( MEMORY ALLOCATION, HERE, STRINGS and HEADERS )
 :t aligned opDUP lsb 0<> 1 lit and + ;t
 :t align {here} lit @ aligned {here} lit ! ;t
-:t allot {here} lit +! ;t
-:t , align {here} lit ! 2 lit allot ;t 
+:t allot {here} lit @ opSWAP {here} lit +! ;t
+:t , align {here} lit @ ! 2 lit {here} lit +! ;t
+:t here {here} lit @ ;t
+( Literal string: online copy )
+:t s" talign {tib} lit @ {>in} lit @ op+ opBEGIN
+    opDUP c@ op0= opIF
+    opDROP here 0 lit 2 lit allot ! opEXIT opTHEN
+    opDUP c@ 32 lit op- 0<> opIF
+        here 1 lit 1 lit allot c! opSWAP
+        opBEGIN
+	    opDUP c@ 1 lit allot c!
+	    op1+ opDUP c@ opDUP op0= opSWAP
+	    34 lit op- op0= or 
+        opUNTIL
+        opDROP here opOVER op- op1- opTOR opR@ opOVER c!
+        opFROMR op1+ op1+ {>in} lit +!
+        opEXIT
+    opTHEN op1+
+opAGAIN ;t
 ( OUTPUT )
 :t cr 10 lit opEMIT ;t
 :t space 32 lit opEMIT ;t
@@ -76,8 +94,10 @@ opSWAP op1- opREPEAT opDROP opDROP ;t
 talign tLABEL: $banner ts" SUBTLE FORTH - v1.0"
 talign tLABEL: $prompt ts" OK> "
 talign tLABEL: $SNerror ts" ?SN ERROR"
+:t .s tDEPTH op1- opFOR {sp} lit @ opR@ op+ [@] . space opNEXT space ;t
 :t banner $banner lit op2* type cr ;t
-:t prompt $prompt lit op2* type ;t
+:t prompt {options} lit @ 2 lit and opIF .s opTHEN
+$prompt lit op2* type ;t
 :t words {last} lit @ opBEGIN opDUP opWHILE
 opDUP op1+ op1+ type 32 lit opEMIT @ opREPEAT opDROP ;t
 ( INPUT bot eot cur c OUTPUT bot eot cur )
@@ -160,9 +180,11 @@ opDUP op1+ op1+ c@ 31 lit and opTOR opOVER op1+ opFROMR = opIF
 compare 0<> opIF opEXIT opTHEN
 opTHEN @
 opREPEAT ;t
-( Outer interpreter: beg lst+1 --   )
+( OUTER INTERPRETER )
+:t ' word find nip nip ;t
 :t cfa op1+ op1+ opDUP c@ 31 lit and +
 opDUP 1 lit and 0= opIF op1+ opTHEN op1+ ;t
+( Outer interpreter: beg lst+1 --   )
 :t interpret 2dup find opDUP 0= opIF
     opDROP opDROP opDROP number 0<> opIF
 	$SNerror lit op2* type cr ( Then what? )
@@ -186,5 +208,5 @@ there post2/ {cold} t!
 banner
 quit
 opBYE
-HALT
+there {here} t!
 timage postbye
