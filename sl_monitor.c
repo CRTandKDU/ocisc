@@ -32,12 +32,14 @@
 #define reg_SP0 reg_IP+4
 #define reg_SP	reg_IP+5
 
+#define reg_STATE 38
+
 void mon_state( short *m ){
   short i;
   printf( "IP: %6d\tTOS: %6d\n", m[ reg_IP ], m[ reg_TOS ] );
   printf( "RP0: %6d\tRP: %6d\n", m[ reg_RP0 ], m[ reg_RP ] );
   printf( "SP0: %6d\tSP: %6d\n", m[ reg_SP0 ], m[ reg_SP ] );
-  printf( "COLD: %6d\tLAST: %6d\tHERE: %6d\n", m[ reg_COLD ], m[ reg_LAST ], m[ reg_HERE ] );
+  printf( "STATE: %2d\tCOLD: %6d\tLAST: %6d\tHERE: %6d\n", m[ reg_STATE ], m[ reg_COLD ], m[ reg_LAST ], m[ reg_HERE ] );
   printf( "W: %6d\tX: %6d\tT: %6d\tH: %6d\n",
 	  m[ reg_W ], m[ reg_X ], m[ reg_T ], m[ reg_H ] );
   for( i=0; i<8; i++ ){

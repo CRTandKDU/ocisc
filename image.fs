@@ -51,7 +51,7 @@ tVAR {sp}
 =stack-start =stksz 2* + DUP {sp0} t! {sp} t!
 ( FORTH system variables )
 tVAR {base} 10 {base} t!
-tVAR {state} -1 {state} t!
+tVAR {state} 0 {state} t!
 str" >in " tsymbol
 tVAR {>in} 0 {>in} t!
 str" tib " tsymbol
@@ -124,6 +124,7 @@ vm JMP
 :a opDROP tos {sp} ILOAD --sp ;a
 :a opTOR ++rp tos {rp} ISTORE tos {sp} ILOAD --sp ;a
 :a opFROMR ++sp tos {sp} ISTORE tos {rp} ILOAD --rp ;a
+str" opEXIT " tsymbol
 :a opEXIT ip {rp} ILOAD --rp ;a
 ( BRANCH group )
 :a tNEXT W {rp} ILOAD

@@ -85,8 +85,9 @@ opAGAIN ;t
 :t [.] abs {base} lit @ opDIVMOD ?dup opIF [.] opTHEN digit opEMIT ;t
 :t . opDUP op0< opIF 45 lit opEMIT opTHEN [.] ;t
 ( STATE WORDS )
-:t ] -1 lit {state} lit ! ;t
-:t [ 0 lit {state} lit ! ;t timmediate
+:t ] 0 lit {state} lit ! ;t
+str" [ " tsymbol
+:t [ -1 lit {state} lit ! ;t timmediate
 ( STRINGS )
 :t type opDUP c@ 31 lit and opBEGIN opDUP opWHILE opSWAP op1+ opDUP c@ opEMIT
 opSWAP op1- opREPEAT opDROP opDROP ;t
@@ -189,12 +190,21 @@ opDUP 1 lit and 0= opIF op1+ opTHEN op1+ ;t
     opDROP opDROP opDROP number 0<> opIF
 	$SNerror lit op2* type cr ( Then what? )
     opTHEN ( a number )
-        opEXIT
-        ( Do something when compiling )
-opTHEN cfa op2/ opTOR 2drop 2drop
-( Do something when compiling )
+	{state} lit @ op0= opIF opEXIT opTHEN
+        975 lit , , opEXIT
+opTHEN
+{state} lit @ op0= opIF
+cfa op2/ opTOR 2drop 2drop opEXIT
+opTHEN
+opDUP op1+ op1+ c@ 64 lit and op0= opIF
+cfa op2/ ,
+opELSE
+cfa op2/ opTOR
+opTHEN
+2drop 2drop 
 ;t
 ( Misc )
+:t C, {here} lit @ C! 1 lit {here} lit +! ;t
 :t bye opBYE ;t
 :t quit opBEGIN
 prompt
@@ -203,10 +213,17 @@ opBEGIN word 2dup op- 0<> opWHILE
 interpret
 opREPEAT 2drop
 opTHEN opAGAIN ;t
+:t create {here} lit @ {last} lit @ 2 lit allot ! word
+opOVER op- op1- opSWAP {tib} lit @ op+ opOVER op+ opSWAP
+opDUP op1+ opSWAP opFOR
+C, opDUP opR@ op- C@
+opNEXT C, opDROP {last} lit ! align ;t
+:t : create [ ;t
+:t ; ] 1479 lit , ;t timmediate
 ( COLD is here )
 there post2/ {cold} t!
 banner
 quit
 opBYE
 there {here} t!
-timage postbye
+timage
