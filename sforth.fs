@@ -1,6 +1,6 @@
 ( -*- mode: forth; -*-  )
 ( Load after image.fs howe.fs )
-( Target FORTH system baed on Jones' FORTH )
+( Target FORTH system based on Jones' and Howe's FORTH )
 ( STACK )
 :t drop opDROP ;t
 str" swap " tsymbol
@@ -16,16 +16,6 @@ str" swap " tsymbol
 :t tuck opSWAP opOVER ;t
 :t >r opTOR ;t
 :t r> opFROMR ;t
-( ARITHMETIC )
-:t 1+ op1+ ;t
-:t 1- op1- ;t
-:t + op+ ;t
-:t - op- ;t
-( Missing multiplication here )
-:t /mod opDIVMOD ;t
-:t 2/ op2/ ;t
-:t 2* op2* ;t
-:t abs opDUP op0< opIF 0 lit opSWAP op- opTHEN ;t 
 ( COMPARISON )
 :t = op- op0= ;t
 :t <> = op0= ;t
@@ -41,6 +31,16 @@ str" swap " tsymbol
 :t 0<= op0> op0= ;t
 :t min 2dup op> opIF nip opELSE drop opTHEN ;t
 :t max 2dup op< opIF nip opELSE drop opTHEN ;t
+( ARITHMETIC )
+:t 1+ op1+ ;t
+:t 1- op1- ;t
+:t + op+ ;t
+:t - op- ;t
+( Missing multiplication here )
+:t /mod opDIVMOD ;t
+:t 2/ op2/ ;t
+:t 2* op2* ;t
+:t abs opDUP op0< opIF 0 lit opSWAP op- opTHEN ;t 
 ( BIT MANIP )
 :t invert opINVERT ;t
 :t or opOVER opMUX ;t
@@ -164,12 +164,15 @@ opELSE opSWAP 0 lit opSWAP op- opSWAP opTHEN
 opFROMR op+ ;t
 ( Dictionary lookup: beg lst+1 )
 ( Compare word to tib: tib+beg len addr -- tib+beg len addr [0|-1] )
+:t uppercase opDUP 96 lit op> opIF
+opDUP 123 lit op< opIF 32 lit op- opEXIT
+opTHEN opTHEN ;t
 :t compare
 ( 32 lit opEMIT opDUP opDUP [.] 32 lit opEMIT op1+ op1+ type )
 opOVER opFOR
     opOVER opR@ op-
-    2dup op+ op1+ op1+ op1+ c@ opTOR ( R@ is char in word )
-    opTOR rot opDUP opFROMR + c@ ( char from tib )
+    2dup op+ op1+ op1+ op1+ c@ uppercase opTOR ( R@ is char in word )
+    opTOR rot opDUP opFROMR + c@ uppercase ( char from tib )
     opFROMR op- 0<> opIF -rot 0 lit opFROMR opDROP opEXIT
     opTHEN -rot
 opNEXT
@@ -191,7 +194,7 @@ opDUP 1 lit and 0= opIF op1+ opTHEN op1+ ;t
 	$SNerror lit op2* type cr ( Then what? )
     opTHEN ( a number )
 	{state} lit @ op0= opIF opEXIT opTHEN
-        975 lit , , opEXIT
+        ADDR_OPPUSH lit , , opEXIT
 opTHEN
 {state} lit @ op0= opIF
 cfa op2/ opTOR 2drop 2drop opEXIT
@@ -203,8 +206,18 @@ cfa op2/ opTOR
 opTHEN
 2drop 2drop 
 ;t
-( Misc )
-:t C, {here} lit @ C! 1 lit {here} lit +! ;t
+( MULTIPLICATION: UNSIGNED )
+:t negate op1- invert ;t
+:t um+ opOVER opOVER + opTOR opR@ 0>= opTOR
+opOVER opOVER and 0< opFROMR or opTOR or 0< opFROMR and negate
+opFROMR opSWAP ;t
+:t um* 0 lit opSWAP 15 lit
+opFOR
+opDUP um+ opTOR opTOR opDUP um+ opFROMR + opFROMR
+opIF opTOR opOVER um+ opFROMR + opTHEN
+opNEXT rot opDROP ;t
+( MISC. )
+:t c, {here} lit @ C! 1 lit {here} lit +! ;t
 :t bye opBYE ;t
 :t quit opBEGIN
 prompt
@@ -216,14 +229,15 @@ opTHEN opAGAIN ;t
 :t create {here} lit @ {last} lit @ 2 lit allot ! word
 opOVER op- op1- opSWAP {tib} lit @ op+ opOVER op+ opSWAP
 opDUP op1+ opSWAP opFOR
-C, opDUP opR@ op- C@
-opNEXT C, opDROP {last} lit ! align ;t
+c, opDUP opR@ op- C@
+opNEXT c, opDROP {last} lit ! align ;t
+:t immediate {last} lit @ op1+ op1+ opDUP C@ 64 lit xor opSWAP C! ;t
 :t : create [ ;t
-:t ; ] 1479 lit , ;t timmediate
+:t ; ] ADDR_OPEXIT lit , ;t timmediate
 ( COLD is here )
 there post2/ {cold} t!
 banner
 quit
 opBYE
 there {here} t!
-timage
+timage postbye

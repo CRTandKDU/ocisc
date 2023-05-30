@@ -117,6 +117,7 @@ vm JMP
 :a opSP! tos {sp} MOV ;a
 :a opEMIT tos PUT tos {sp} ILOAD --sp ;a
 :a opKEY ++sp tos {sp} ISTORE tos GET ;a
+tLABEL: ADDR_OPPUSH
 :a opPUSH ++sp tos {sp} ISTORE tos ip ILOAD ip tINC ;a
 :a opSWAP tos W MOV tos {sp} ILOAD w {sp} ISTORE ;a
 :a opDUP ++sp tos {sp} ISTORE ;a
@@ -124,7 +125,7 @@ vm JMP
 :a opDROP tos {sp} ILOAD --sp ;a
 :a opTOR ++rp tos {rp} ISTORE tos {sp} ILOAD --sp ;a
 :a opFROMR ++sp tos {sp} ISTORE tos {rp} ILOAD --rp ;a
-str" opEXIT " tsymbol
+tLABEL: ADDR_OPEXIT
 :a opEXIT ip {rp} ILOAD --rp ;a
 ( BRANCH group )
 :a tNEXT W {rp} ILOAD
