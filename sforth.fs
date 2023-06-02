@@ -115,7 +115,7 @@ opTHEN opFROMR + opEXIT
 opTHEN opDROP nip opDUP ;t
 ( INPUT a line to {tib} )
 :t accept {tib} lit @ =buf lit
-opOVER + opOVER opBEGIN
+opOVER op+ opOVER opBEGIN
 2dup <> opWHILE
 opKEY opDUP 32 lit op< opIF
 ktap opELSE opDUP 127 lit op< opIF
@@ -236,8 +236,10 @@ opNEXT c, opDROP {last} lit ! align ;t
 :t ; ] ADDR_OPEXIT lit , ;t timmediate
 ( COLD is here )
 there post2/ {cold} t!
-banner
-quit
+banner quit
 opBYE
+( Your FORTH starts here! )
 there {here} t!
-timage postbye
+( Save image )
+hex str" io.slq" timage postbye
+( str" out.slq" timage postbye )

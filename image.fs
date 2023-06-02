@@ -116,7 +116,8 @@ vm JMP
 :a opSP@ ++sp tos {sp} ISTORE {sp} tos MOV tos tINC ;a
 :a opSP! tos {sp} MOV ;a
 :a opEMIT tos PUT tos {sp} ILOAD --sp ;a
-:a opKEY ++sp tos {sp} ISTORE tos GET ;a
+( tos ZERO before tos GET from the h/w implementation )
+:a opKEY ++sp tos {sp} ISTORE tos ZERO tos GET ;a
 tLABEL: ADDR_OPPUSH
 :a opPUSH ++sp tos {sp} ISTORE tos ip ILOAD ip tINC ;a
 :a opSWAP tos W MOV tos {sp} ILOAD w {sp} ISTORE ;a

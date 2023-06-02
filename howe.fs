@@ -71,7 +71,7 @@ BEGIN KEY DUP 34 <> WHILE OVER tc! 1+ REPEAT DROP
 : tascii DUP 31 > IF DUP 128 < IF DUP EMIT THEN THEN DROP ; 
 : tmemC@. DUP tc@ DUP . 32 EMIT tascii 9 EMIT ;
 : tmem 0 BEGIN tmem. tmem@. tmemC@. 1+ tmemC@. CR 1+ DUP there - 0>= UNTIL DROP ;
-: trace IF s" out.slq" FOPEN ELSE FCLOSE THEN ;
+: trace IF FOPEN ELSE FCLOSE THEN ;
 : timage 1 trace STR" v2.0 raw" type CR tdump 0 trace ;
 : tsymbol VERBOSITY @ IF there 2/ . TYPE CR ELSE DROP DROP THEN ;
 1 VERBOSITY !

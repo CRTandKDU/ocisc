@@ -1,0 +1,7 @@
+﻿Nom,Quantité,Composant
+"PALIMENTATION",1,"5 , 2.5  Bloc d'alimentation"
+"FUNCCLOCK",1,"1 Hz, 5 V, 2.5 V, Carré Générateur de fonction"
+"U1, U2",2," Bascule D double"
+"D1, D2, D3",3,"Rouge LED"
+"R1, R2, R3",3,"470 Ω Résistance"
+"U3",1," Porte NON-ET quadruple"
