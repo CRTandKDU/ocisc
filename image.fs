@@ -103,10 +103,12 @@ vm JMP
 ( level instructions )
 :a opBYE HALT ;a
 :a op1- tos tDEC ;a
+tLABEL: ADDR_OP1+
 :a op1+ tos tINC ;a
 :a opINVERT tos tINV ;a
 :a [@] tos tos ILOAD ;a
 :a [!] W {sp} ILOAD W tos ISTORE --sp tos {sp} ILOAD --sp ;a
+tLABEL: ADDR_OP-
 :a op- W {sp} ILOAD tos W SUB W tos MOV --sp ;a
 :a op+ W {sp} ILOAD tos W ADD --sp ;a
 :a opR@ ++sp tos {sp} ISTORE tos {rp} ILOAD ;a
@@ -122,9 +124,13 @@ tLABEL: ADDR_OPPUSH
 :a opPUSH ++sp tos {sp} ISTORE tos ip ILOAD ip tINC ;a
 :a opSWAP tos W MOV tos {sp} ILOAD w {sp} ISTORE ;a
 :a opDUP ++sp tos {sp} ISTORE ;a
+tLABEL: ADDR_OPOVER
 :a opOVER W {sp} ILOAD ++sp tos {sp} ISTORE W tos MOV ;a
+tLABEL: ADDR_OPDROP
 :a opDROP tos {sp} ILOAD --sp ;a
+tLABEL: ADDR_OPTOR
 :a opTOR ++rp tos {rp} ISTORE tos {sp} ILOAD --sp ;a
+tLABEL: ADDR_OPFROMR
 :a opFROMR ++sp tos {sp} ISTORE tos {rp} ILOAD --rp ;a
 tLABEL: ADDR_OPEXIT
 :a opEXIT ip {rp} ILOAD --rp ;a
@@ -132,12 +138,15 @@ tLABEL: ADDR_OPEXIT
 :a tNEXT W {rp} ILOAD
 W tIF W tDEC W {rp} ISTORE T ip ILOAD T ip MOV ;a
 tTHEN ip tINC --rp ;a
+tLABEL: ADDR_OPJUMP
 :a opJUMP ip ip ILOAD ;a
+tLABEL: ADDR_OPJUMPZ
 :a opJUMPZ tos W MOV 0 T MOV
 W tIF CONST_NEG1 T MOV tTHEN tos {sp} ILOAD --sp
 T tIF ip tINC vm JMP tTHEN W ip ILOAD w ip MOV ;a
 ( COMPARISON group )
 :a op0> tos W MOV 0 tos MOV W tIF+ CONST_NEG1 tos MOV tTHEN ;a
+tLABEL: ADDR_OP0=
 :a op0= tos W MOV CONST_NEG1 tos MOV
 W tIF 0 tos MOV tTHEN W tDEC W tIF+ 0 tos MOV tTHEN ;a
 :a op0< tos W MOV 0 tos MOV

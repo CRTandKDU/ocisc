@@ -61,6 +61,7 @@ opTOR opOVER xor opFROMR and xor opSWAP ! ;t
 :t allot {here} lit @ opSWAP {here} lit +! ;t
 :t , align {here} lit @ ! 2 lit {here} lit +! ;t
 :t here {here} lit @ ;t
+:t state {state} lit @ ;t
 ( Literal string: online copy )
 :t s" talign {tib} lit @ {>in} lit @ op+ opBEGIN
     opDUP c@ op0= opIF
@@ -80,14 +81,15 @@ opAGAIN ;t
 ( OUTPUT )
 :t cr 10 lit opEMIT ;t
 :t space 32 lit opEMIT ;t
+:t emit opEMIT ;t
 ( NUMERIC OUTPUT )
 :t digit 9 lit opOVER op< opIF 7 lit op+ opTHEN 48 lit op+ ;t
 :t [.] abs {base} lit @ opDIVMOD ?dup opIF [.] opTHEN digit opEMIT ;t
 :t . opDUP op0< opIF 45 lit opEMIT opTHEN [.] ;t
 ( STATE WORDS )
-:t ] 0 lit {state} lit ! ;t
+:t ] -1 lit {state} lit ! ;t
 str" [ " tsymbol
-:t [ -1 lit {state} lit ! ;t timmediate
+:t [ 0 lit {state} lit ! ;t timmediate
 ( STRINGS )
 :t type opDUP c@ 31 lit and opBEGIN opDUP opWHILE opSWAP op1+ opDUP c@ opEMIT
 opSWAP op1- opREPEAT opDROP opDROP ;t
@@ -232,8 +234,29 @@ opDUP op1+ opSWAP opFOR
 c, opDUP opR@ op- C@
 opNEXT c, opDROP {last} lit ! align ;t
 :t immediate {last} lit @ op1+ op1+ opDUP C@ 64 lit xor opSWAP C! ;t
-:t : create [ ;t
-:t ; ] ADDR_OPEXIT lit , ;t timmediate
+:t : create ] ;t
+:t ; [ ADDR_OPEXIT lit , ;t timmediate
+( Control STRUCTURES )
+:t if ADDR_OPJUMPZ lit , {here} lit @ 0 lit , ;t timmediate tcompile-only
+:t else ADDR_OPJUMP lit , {here} lit @ 0 lit ,
+opSWAP align {here} lit @ op2/ opSWAP ! ;t timmediate tcompile-only
+:t then align {here} lit @ op2/ opSWAP ! ;t timmediate tcompile-only
+:t begin align {here} lit @ ;t timmediate tcompile-only
+:t again ADDR_OPJUMP lit , op2/ , ;t timmediate tcompile-only
+:t until ADDR_OPJUMPZ lit , op2/ , ;t timmediate tcompile-only
+:t while ADDR_OPJUMPZ lit , {here} lit @ 0 lit , ;t timmediate tcompile-only
+:t repeat ADDR_OPJUMP lit , opSWAP op2/ , {here} lit @ op2/ opSWAP ! ;t timmediate tcompile-only
+:t for  {here} lit @ ADDR_OPTOR lit , ADDR_OPTOR lit , ;t timmediate tcompile-only
+:t next ADDR_OPFROMR lit , ADDR_OPFROMR lit ,
+ADDR_OP1+ lit ,
+ADDR_OPOVER lit ,
+ADDR_OPOVER lit ,
+ADDR_OP- lit ,
+ADDR_OP0= lit ,
+ADDR_OPJUMPZ lit , op2/ ,
+ADDR_OPDROP lit , ADDR_OPDROP lit , ;t timmediate tcompile-only
+:t exit ADDR_OPEXIT lit , ;t timmediate tcompile-only
+:t literal {state} lit @ opIF ADDR_OPPUSH lit , , opTHEN ;t timmediate
 ( COLD is here )
 there post2/ {cold} t!
 banner quit
@@ -241,5 +264,5 @@ opBYE
 ( Your FORTH starts here! )
 there {here} t!
 ( Save image )
-hex str" io.slq" timage postbye
-( str" out.slq" timage postbye )
+( hex str" io.slq" timage postbye )
+str" out.slq" timage postbye
