@@ -246,6 +246,7 @@ opSWAP align {here} lit @ op2/ opSWAP ! ;t timmediate tcompile-only
 :t until ADDR_OPJUMPZ lit , op2/ , ;t timmediate tcompile-only
 :t while ADDR_OPJUMPZ lit , {here} lit @ 0 lit , ;t timmediate tcompile-only
 :t repeat ADDR_OPJUMP lit , opSWAP op2/ , {here} lit @ op2/ opSWAP ! ;t timmediate tcompile-only
+:t exit ADDR_OPEXIT lit , ;t timmediate tcompile-only
 :t for  {here} lit @ ADDR_OPTOR lit , ADDR_OPTOR lit , ;t timmediate tcompile-only
 :t next ADDR_OPFROMR lit , ADDR_OPFROMR lit ,
 ADDR_OP1+ lit ,
@@ -255,8 +256,17 @@ ADDR_OP- lit ,
 ADDR_OP0= lit ,
 ADDR_OPJUMPZ lit , op2/ ,
 ADDR_OPDROP lit , ADDR_OPDROP lit , ;t timmediate tcompile-only
-:t exit ADDR_OPEXIT lit , ;t timmediate tcompile-only
+( CREATE DOES )
+:t ADDR_EXIT ADDR_OPEXIT lit ;t
+:t ADDR_PUSH ADDR_OPPUSH lit ;t
+:t compile, ' cfa 2/ , ;t timmediate
+:t [compile,] ADDR_OPPUSH lit , ' cfa 2/ , ;t timmediate
 :t literal {state} lit @ opIF ADDR_OPPUSH lit , , opTHEN ;t timmediate
+( So far : constant here swap , create [ ADDR_PUSH ] literal , , )
+(          [ ' @ cfa 2/ ] literal , [ ADDR_EXIT ] literal , ;    )
+( DEBUG )
+:t see 0 lit opBEGIN opDUP 20 lit op< opWHILE
+opOVER opOVER op+ opDUP . space @ . cr op1+ op1+ opREPEAT opDROP 20 lit op+ ;t
 ( COLD is here )
 there post2/ {cold} t!
 banner quit

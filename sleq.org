@@ -102,6 +102,23 @@ As of v.1.0:
 #+BEGIN_QUOTE
 ; : immediate create quit bye c, um* um+ negate interpret cfa ' find compare number number? word accept ktap tap words prompt banner .s type [ ] . [.] digit space cr s" here , allot align aligned c! c@ lshift \+! @ ! xor and or invert abs 2* 2/ /mod - + 1- 1+ max min 0<= 0>= 0< 0> 0<> 0= <= >= < > <> = r> >r tuck nip 2dup 2drop -rot rot over ?dup dup swap drop 0  OK>
 #+END_QUOTE
+** Idioms
+*** COMPILE,
+#+begin_quote
+: COMPILE, ' CFA 2/ , ; IMMEDIATE
+#+end_quote
+
+which may be used in defining new words.
+
+#+begin_quote
+: FOUR 2 2 + ;
+( is equivalent to )
+: FOUR_ 2 2 COMPILE, + ;
+#+end_quote
+
+*** [COMPILE,]
+To be used in create.
+
 * Chrono
 <2023-04-09 dim.> ~subleq.c~ minimal C SUBLEQ engine, w. optional output.
 <2023-04-10 lun.> Returned to ~lbforth~ as a target. Added ~words~ word.
