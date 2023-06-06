@@ -88,7 +88,7 @@ vm JMP
 ( Header for words Name Field Address )
 : tNFA tcell + ;
 ( Header for words Code Field Address )
-: tCFA tNFA DUP tc@ 31 and + tcell + tdown ;
+: tCFA tNFA DUP tc@ 31 and + tcell + ;
 ( Header for words Building )
 : count DUP 1+ SWAP C@ ;
 : tpack talign DUP tc, 0 DO count tc, LOOP DROP ;

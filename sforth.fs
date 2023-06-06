@@ -256,12 +256,13 @@ ADDR_OP- lit ,
 ADDR_OP0= lit ,
 ADDR_OPJUMPZ lit , op2/ ,
 ADDR_OPDROP lit , ADDR_OPDROP lit , ;t timmediate tcompile-only
-( CREATE DOES )
-:t ADDR_EXIT ADDR_OPEXIT lit ;t
-:t ADDR_PUSH ADDR_OPPUSH lit ;t
-:t compile, ' cfa 2/ , ;t timmediate
-:t [compile,] ADDR_OPPUSH lit , ' cfa 2/ , ;t timmediate
+( WORD AND OBJECT pace  Quine )
 :t literal {state} lit @ opIF ADDR_OPPUSH lit , , opTHEN ;t timmediate
+tLABEL: ADDR_DONE
+:t done ADDR_OPJUMP lit , op2/ , ;t
+tVAR BODY_DONE ADDR_DONE tCFA op2/ BODY_DONE t!
+:t does> ADDR_OPPUSH lit , here 6 lit op+ ,
+BODY_DONE t@ lit , ADDR_OPEXIT lit , ;t  timmediate
 ( So far : constant here swap , create [ ADDR_PUSH ] literal , , )
 (          [ ' @ cfa 2/ ] literal , [ ADDR_EXIT ] literal , ;    )
 ( DEBUG )
