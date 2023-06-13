@@ -260,14 +260,20 @@ ADDR_OPDROP lit , ADDR_OPDROP lit , ;t timmediate tcompile-only
 :t literal {state} lit @ opIF ADDR_OPPUSH lit , , opTHEN ;t timmediate
 tLABEL: ADDR_DONE
 :t done ADDR_OPJUMP lit , op2/ , ;t
-tVAR BODY_DONE ADDR_DONE tCFA op2/ BODY_DONE t!
+str" BODY_DONE" tsymbol
+tVAR BODY_DONE ADDR_DONE 4 post+  BODY_DONE t!
 :t does> ADDR_OPPUSH lit , here 6 lit op+ ,
 BODY_DONE t@ lit , ADDR_OPEXIT lit , ;t  timmediate
-( So far : constant here swap , create [ ADDR_PUSH ] literal , , )
-(          [ ' @ cfa 2/ ] literal , [ ADDR_EXIT ] literal , ;    )
 ( DEBUG )
 :t see 0 lit opBEGIN opDUP 20 lit op< opWHILE
 opOVER opOVER op+ opDUP . space @ . cr op1+ op1+ opREPEAT opDROP 20 lit op+ ;t
+( This has to be last? )
+:t lit ADDR_OPPUSH t, ADDR_OPPUSH t, , , ;t
+( With this final word, a constant is defined as : )
+( : constant here swap , create lit does> @ ; )
+( 123 constant foo )
+( and )
+( : variable here swap , create lit does> ; )
 ( COLD is here )
 there post2/ {cold} t!
 banner quit
