@@ -281,5 +281,5 @@ opBYE
 ( Your FORTH starts here! )
 there {here} t!
 ( Save image )
-( hex str" io.slq" timage postbye )
-str" out.slq" timage postbye
+hex str" ram.slq" timage postbye
+( str" out.slq" timage postbye )
